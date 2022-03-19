@@ -1,0 +1,20 @@
+{
+  "name": "rank1-js",
+  "version": "1.0.0",
+  "main": "index.js",
+  "types": "./src/@types/",
+  "license": "MIT",
+  "scripts": {
+    "dev": "ts-node-dev src/index.ts"
+  },
+  "dependencies": {
+    "electron": "^17.1.2",
+    "electron-overlay-window": "^2.0.1",
+    "memoryjs": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.21",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.6.2"
+  }
+}

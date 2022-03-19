@@ -1,5 +1,5 @@
 import memoryjs, { Module, Process } from 'memoryjs';
-import { EventEmitter } from 'stream';
+import { EventEmitter } from 'events';
 
 type LeagueProcessConstructorArgs = {
     searchProcessIntervalSeconds: number;
@@ -39,6 +39,16 @@ class LeagueProcess extends EventEmitter {
                 this.process = memoryjs.openProcess('League of Legends.exe');
                 if(this.process) {
                     this.module = memoryjs.findModule('League of Legends.exe', this.process.th32ProcessID);
+                }
+
+                if(this.module && !this.open) {
+                    this.open = true;
+                    this.emit("load", this);
+                }
+
+                if(this.open && !this.module) {
+                    this.open = false;
+                    this.emit("unload");
                 }
             } catch {
 

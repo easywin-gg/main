@@ -1,14 +1,11 @@
 import Core from "../app/Core";
-import GameObject from "./objects/GameObject";
-import LocalPlayer from "./objects/LocalPlayer";
 import memoryjs from 'memoryjs';
 import Offsets from "./offsets/Offsets";
+import GameObject from "./GameObject";
 
 const MAX_UNITS = 500;
 
 class Game {
-
-    private readonly core: Core;
 
     public champions: GameObject[] = [];
     public minions: GameObject[] = [];
@@ -17,17 +14,25 @@ class Game {
     public missiles: GameObject[] = [];
     public others: GameObject[] = [];
 
-    public localPlayer: LocalPlayer
-    public gameTime: number = 0.0;
+    public localPlayer: GameObject
 
-    constructor(core: Core) {
-        this.core = core;
+    constructor(
+        private readonly core: Core
+    ) {
+        const localPlayer = memoryjs.readMemory(
+            this.core.process.handle, 
+            this.core.module.modBaseAddr + Offsets.LocalPlayer, 
+            memoryjs.INT
+        );
 
-        this.localPlayer = new LocalPlayer(this.core);
-        this.gameTime = memoryjs.readMemory(this.core.process.handle, this.core.module.modBaseAddr + Offsets.GameTime, memoryjs.FLOAT);
+        this.localPlayer = new GameObject(this.core, localPlayer);
     }
 
-    readObjects() {
+    getGameTime(): number {
+        return memoryjs.readMemory(this.core.process.handle, this.core.module.modBaseAddr + Offsets.GameTime, memoryjs.FLOAT);;
+    }
+
+    readObjects() { 
         this.champions = [];
         this.minions = [];
         this.jungle = [];
@@ -86,7 +91,7 @@ class Game {
         pointers.forEach((pointer) => {
             try {
                 const object = new GameObject(this.core, pointer);
-                const name = object.name;
+                const name = object.getName();
                 if (name.length <= 2 || !/^[ -~\t\n\r]+$/.test(name)) return;
 
                 this.others.push(object);

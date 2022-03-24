@@ -1,5 +1,5 @@
 import memoryjs, { Module, Process } from 'memoryjs';
-import EventBus, { EventType } from '../events/eventbus';
+import EventBus, { EventType } from '../events/EventBus';
 import Game from '../game/Game';
 
 type LeagueProcessConstructorArgs = {

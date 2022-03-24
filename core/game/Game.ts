@@ -45,7 +45,7 @@ class Game {
         );
 
         if(objectManager <= 0) return;
-        
+
         const mapRoot = memoryjs.readMemory(this.core.process.handle, objectManager + Offsets.MapRoot, memoryjs.INT);
         const visitedAddress: number[] = [];
         const pointers: number[] = [];
@@ -84,10 +84,17 @@ class Game {
             currentNode = currentNode.next
         }
 
-        for(const pointer of pointers) {
-            const object = new GameObject(this.core, pointer);
-            this.others.push(object);
-        }
+        pointers.forEach((pointer)=> {
+            try {
+                const object = new GameObject(this.core, pointer);
+                const name = object.getName();
+                if(name.length <= 2 || !/^[ -~\t\n\r]+$/.test(name)) return;
+                
+                this.others.push(object);
+            } catch(error) {
+
+            }
+        })
     }
 }
 

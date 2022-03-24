@@ -5,7 +5,7 @@
   "types": "./src/@types/",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node-dev src/index.ts"
+    "dev": "ts-node-dev core/index.ts"
   },
   "dependencies": {
     "electron": "^17.1.2",

@@ -1,21 +1,90 @@
-import Offsets from "./game/Offsets";
-import LeagueProcess from "./process/LeagueProcess";
+import Offsets from "./game/offsets/Offsets";
 import memoryjs from 'memoryjs';
+import { EventType } from "./events/eventbus";
+import Core from "./app/Core";
+import Game from "./game/Game";
+import GameObject from "./game/objects/GameObject";
 
-const league = new LeagueProcess({ searchProcessIntervalSeconds: 1 });
+const core = new Core({ searchProcessIntervalSeconds: 1 });
+core.start();
 
-league.on("load", async(league: LeagueProcess)=> {
-    console.log(`League Process found, ${league.process.th32ProcessID}.`);
+const MAX_UNITS = 500;
 
-    while(true) {
-        const gametime = memoryjs.readMemory(league.process.handle, league.module.modBaseAddr + Offsets.GameTime, memoryjs.FLOAT);
-        console.log(gametime);
-           await new Promise((resolve)=> setTimeout(resolve, 100));
-    }
+Core.getEventManager().subscribe(EventType.OnOpenLeague, async(script: Core)=> {
+    script.game = new Game(script);
+    console.log(`League Process found, ${script.process.th32ProcessID}.`);
+    
+    const player = script.game.localPlayer;
+    console.log(player.getPlayerName());
+    
+    // const objectManagerOffset = memoryjs.readMemory(
+    //     script.process.handle,
+    //     script.module.modBaseAddr + Offsets.ObjectManager, 
+    //     memoryjs.INT
+    //     );
+        
+    // if(objectManagerOffset <= 0) return;
+
+    // const objectManager = memoryjs.readMemory(script.process.handle, core.module.modBaseAddr + Offsets.ObjectManager, memoryjs.DWORD);
+    // const buffer = memoryjs.readBuffer(
+    //     script.process.handle,
+    //     objectManager,
+    //     0x100
+    // );
+
+    // const numMissiles = memoryjs.readMemory(script.process.handle, objectManager + Offsets.MapCount, memoryjs.INT);
+    // if(numMissiles <= 0) return false;
+    // const rootNode = memoryjs.readMemory(script.process.handle, objectManager + Offsets.MapRoot, memoryjs.INT);
+    // if (rootNode <= 0) return false;
+
+    // console.log(objectManager);
+    // console.log(numMissiles, rootNode);
+
+    // const nodesToVisit: number[] = [];
+	// const visitedNodes: number[] = [];
+    
+    // nodesToVisit.push(rootNode);
+    
+	// // // Read object pointers from tree
+	// // var nrObj = 0;
+	// // var reads = 0;
+	// // var childNode1, childNode2, childNode3, node;
+    // // while(reads < MAX_UNITS && nodesToVisit.length > 0) {
+    // //     node = nodesToVisit.shift();
+    // //     if(!node) continue;
+
+    // //     reads++;
+    // //     visitedNodes.push(node);
+    // //     memoryjs.readBuffer(
+    // //         script.process.handle,
+    // //         node,
+    // //         0x30
+    // //     );
+
+    // //     const xd = memoryjs.readMemory(script.process.handle, Offsets.MapNodeNetId, memoryjs.INT);
+    // //     console.log(xd);
+    // // }
+    
+    // // const objectManagerArray = memoryjs.readMemory(script.process.handle, Offsets.ObjectManager + 0x14, memoryjs.DWORD);
+
+    // // const dwHeroList = memoryjs.readMemory(script.process.handle, core.module.modBaseAddr + Offsets.HeroList, memoryjs.DWORD);
+    // // const heroArray = memoryjs.readMemory(script.process.handle, dwHeroList + 0x04, memoryjs.DWORD);
+    // // console.log(heroArray);
+    // // const HeroArrayLength: number = memoryjs.readMemory(script.process.handle, dwHeroList + 0x08, memoryjs.INT);
+    // // console.log(HeroArrayLength);
+    
+    // // for (var i = 0; i < HeroArrayLength * 4; i += 4) {
+    // //     console.log(memoryjs.readMemory(script.process.handle, heroArray + i, memoryjs.DWORD));
+
+    // //     const object = new GameObject(
+    // //         script, 
+    // //         memoryjs.readMemory(script.process.handle, heroArray + i, memoryjs.DWORD)
+    // //     );
+
+    // //     //console.log(object.getHealth());
+	// // }
 });
 
-league.on("unload", ()=> {
+Core.getEventManager().subscribe(EventType.OnCloseLeague, ()=> {
     console.log(`League closed.`);
 })
-
-league.startSearchProcess();

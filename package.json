@@ -10,7 +10,8 @@
   "dependencies": {
     "electron": "^17.1.2",
     "electron-overlay-window": "^2.0.1",
-    "memoryjs": "^3.4.0"
+    "memoryjs": "^3.4.0",
+    "robotjs": "^0.6.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.21",

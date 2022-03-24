@@ -35,6 +35,7 @@ class Core {
     
                     if(this.module && !this.open) {
                         this.open = true;
+                        this.game = new Game(this);
                         Core.eventBus.publish(EventType.OnOpenLeague, this);
                     }
     
@@ -53,6 +54,14 @@ class Core {
         if(this.searchingProcessInterval) {
             this.searchingProcessInterval.unref();
         }
+    }
+
+    public static readIntegerFromBuffer(buffer: Buffer, offset: number) {
+        return buffer.slice(offset, offset+4).readIntLE(0, 4);
+    }
+
+    public static readFloatFromBuffer(buffer: Buffer, offset: number) {
+        return buffer.slice(offset, offset+4).readFloatLE(0);
     }
 
     public static getEventManager() {

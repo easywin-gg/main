@@ -4,27 +4,23 @@ import Offsets from "../offsets/Offsets";
 
 class GameObject {
 
-    protected core: Core;
-    protected address: number;
+    constructor(
+        protected readonly core: Core,
+        protected readonly address: number
+    ) { }
 
-    constructor(core: Core, address: number) {
-        this.core = core;
-        this.address = memoryjs.readMemory(core.process.handle, address, memoryjs.INT);
+    getName(): string {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.Name, memoryjs.STRING);
     }
 
-    getPlayerName() {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.PlayerName, memoryjs.STRING);
-    }
-    
-    getMaxHealth() {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.MaxHealth, memoryjs.FLOAT);
-    }
-    
-    getHealth() {
+    getHealth(): number {
         return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.Health, memoryjs.FLOAT);
     }
 
+    getMaxHealth(): number {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.MaxHealth, memoryjs.FLOAT);
+    }
 
-}       
+}
 
 export default GameObject;

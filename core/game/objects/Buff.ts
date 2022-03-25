@@ -21,10 +21,32 @@ class Buff {
         );
 
         this.info = Core.readIntegerFromBuffer(data, Offsets.BuffInfo);
-        
+
         this.name = memoryjs.readMemory(this.core.process.handle, this.info + Offsets.BuffInfoName, memoryjs.STRING);
         this.count = Core.readIntegerFromBuffer(data, Offsets.BuffCount);
         this.expiresAt = Core.readFloatFromBuffer(data, Offsets.BuffEndTime);
+    }
+
+    public static loadBuffManager(core: Core, buffEntryStart: number, buffEntryEnd: number) {
+        const buffs: Buff[] = [];
+
+        var currentAddress = buffEntryStart;
+        while (currentAddress != buffEntryEnd) {
+            const buffAddress = memoryjs.readMemory(
+                core.process.handle,
+                currentAddress,
+                memoryjs.INT
+            );
+
+            try {
+                const buff = new Buff(core, buffAddress);
+                buffs.push(buff);
+            } catch {};
+
+            currentAddress += 0x8;
+        }
+
+        return buffs;
     }
 
 }

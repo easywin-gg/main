@@ -1,7 +1,8 @@
 export enum EventType {
-    OnOpenLeague,
-    OnCloseLeague,
-    OnTick
+    OnLoad,
+    OnUnload,
+    OnTick,
+    OnDraw
 }
 
 class EventBus {

@@ -31,17 +31,17 @@ class Core {
                     this.process = memoryjs.openProcess('League of Legends.exe');
                     if(this.process) {
                         this.module = memoryjs.findModule('League of Legends.exe', this.process.th32ProcessID);
+                    } else if(this.open) {
+                        console.log("CARALHO");
+                        this.open = false;
+                        Core.eventBus.publish(EventType.OnUnload, this);
+                        return;
                     }
     
                     if(this.module && !this.open) {
                         this.open = true;
                         this.game = new Game(this);
-                        Core.eventBus.publish(EventType.OnOpenLeague, this);
-                    }
-    
-                    if(this.open && !this.module) {
-                        this.open = false;
-                        Core.eventBus.publish(EventType.OnCloseLeague, this);
+                        Core.eventBus.publish(EventType.OnLoad, this);
                     }
                 } catch {
     

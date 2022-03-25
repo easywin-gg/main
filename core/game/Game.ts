@@ -50,7 +50,6 @@ class Game {
 
         const mapRoot = memoryjs.readMemory(this.core.process.handle, objectManager + Offsets.MapRoot, memoryjs.INT);
         const visitedAddress: number[] = [];
-        const pointers: number[] = [];
 
         var unitsRead = 0;
         var currentNode: { address: number, next: any } = {
@@ -79,26 +78,18 @@ class Game {
 
                 const networkId = Core.readIntegerFromBuffer(data, Offsets.MapNodeNetId);
                 if (networkId - 0x40000000 <= 0x100000) {
-                    pointers.push(Core.readIntegerFromBuffer(data, Offsets.MapNodeObject))
-                }
-            } catch (error) {
-                console.log(error)
-            }
+                    const pointer = Core.readIntegerFromBuffer(data, Offsets.MapNodeObject);
 
+                    const object = new GameObject(this.core, pointer);
+                    const name = object.getName();
+                    if (name.length <= 2 || !/^[ -~\t\n\r]+$/.test(name)) return;
+    
+                    this.others.push(object);
+                }
+            } catch {}
+            
             currentNode = currentNode.next
         }
-
-        pointers.forEach((pointer) => {
-            try {
-                const object = new GameObject(this.core, pointer);
-                const name = object.getName();
-                if (name.length <= 2 || !/^[ -~\t\n\r]+$/.test(name)) return;
-
-                this.others.push(object);
-            } catch (error) {
-
-            }
-        })
     }
 }
 

@@ -34,8 +34,6 @@ class GameObject {
     }
 
     public getBuffs(): Buff[] {
-        const buffs: Buff[] = [];
-
         const buffEntryStart = memoryjs.readMemory(
             this.core.process.handle,
             this.address + Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesStart,
@@ -48,54 +46,19 @@ class GameObject {
             memoryjs.INT
         );
 
-
-        var currentAddress = buffEntryStart;
-        while (currentAddress != buffEntryEnd) {
-            const buffAddress = memoryjs.readMemory(
-                this.core.process.handle,
-                currentAddress,
-                memoryjs.INT
-            );
-
-            try {
-                const buff = new Buff(this.core, buffAddress);
-                buffs.push(buff);
-            } catch {};
-
-            currentAddress += 0x8;
-        }
-
-        return buffs;
+        if(buffEntryStart <= 0 || buffEntryEnd <= 0) return [];
+        return Buff.loadBuffManager(this.core, buffEntryStart, buffEntryEnd);
     }
 
     public getSpellBook(): Map<SpellSlot, Spell> {
-        const spells = new Map<SpellSlot, Spell>();
-
         const spellBook = memoryjs.readMemory(
             this.core.process.handle,
             this.address + Offsets.ObjectSpellBook,
             memoryjs.INT
         );
 
-        if (spellBook < 0) return spells;
-
-        const spellBookArray = memoryjs.readBuffer(
-            this.core.process.handle,
-            spellBook + Offsets.ObjectSpellBookArray,
-            Object.keys(SpellSlot).length * 4
-        );
-
-        for (var i = 0; i < Object.keys(SpellSlot).length; i++) {
-            const spellAddress = Core.readIntegerFromBuffer(spellBookArray, i * 4);
-
-            try {
-                const slot = Object.values(SpellSlot)[i] as SpellSlot;
-                const spell = new Spell(this.core, spellAddress);
-                spells.set(slot, spell);
-            } catch {}
-        }
-
-        return spells;
+        if (spellBook <= 0) return new Map<SpellSlot, Spell>();
+        return Spell.loadSpellBook(this.core, spellBook);
     }
 
 }

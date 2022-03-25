@@ -6,7 +6,7 @@ import { SpellSlot } from "./game/GameObject";
 const core = new Core({ searchProcessIntervalSeconds: 1 });
 core.start();
 
-Core.getEventManager().subscribe(EventType.OnOpenLeague, async (script: Core) => {
+Core.getEventManager().subscribe(EventType.OnLoad, async (script: Core) => {
     console.log(`League Process found, ${script.process.th32ProcessID}.`);
 
     const player = script.game.localPlayer;
@@ -33,6 +33,6 @@ Core.getEventManager().subscribe(EventType.OnOpenLeague, async (script: Core) =>
     // }
 });
 
-Core.getEventManager().subscribe(EventType.OnCloseLeague, () => {
+Core.getEventManager().subscribe(EventType.OnUnload, () => {
     console.log(`League closed.`);
 })

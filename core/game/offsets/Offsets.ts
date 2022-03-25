@@ -13,10 +13,22 @@ const GameObject = {
     ObjectSpellBook: 0x27e4,
     ObjectSpellBookArray: 0x488,
 
+    ObjectBuffManager: 0x21B8,
+    ObjectBuffManagerEntriesStart: 0x10,
+    ObjectBuffManagerEntriesEnd: 0x14,
+
     MapCount: 0x2C,
     MapRoot: 0x28,
     MapNodeNetId: 0x10,
     MapNodeObject: 0x14
+}
+
+const Buff = {
+    BuffSize: 0x78,
+    BuffInfo: 0x8,
+    BuffCount: 0x74,
+    BuffEndTime: 0x10,
+    BuffInfoName: 0x8,
 }
 
 const SpellSlot = {
@@ -29,5 +41,6 @@ export default {
     GameTime: 0x310DF84,
     ...GameClient,
     ...GameObject,
-    ...SpellSlot
+    ...SpellSlot,
+    ...Buff
 };

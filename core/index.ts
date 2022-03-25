@@ -14,19 +14,23 @@ Core.getEventManager().subscribe(EventType.OnOpenLeague, async (script: Core) =>
     script.game.readObjects();
     console.log('-------------------------------');
 
-    for (const [slot, spell] of player.getSpellBook()) {
-        console.log(`[${slot}] Level: ${spell.level}, Cooldown Expires At: ${spell.expiresAt}`)
+    for(const buff of player.getBuffs()) {
+        console.log(`${buff.name} > ${buff.count} > ${buff.expiresAt}`)
     }
 
-    while (true) {
-        console.clear();
-        console.log(`${player.getName()} > HP: ${player.getHealth()}/${player.getMaxHealth()}`);
-        for (const [slot, spell] of player.getSpellBook()) {
-            console.log(`[${slot}] Level: ${spell.level}, Cooldown Expires At: ${spell.expiresAt}`)
-        }
+    // for (const [slot, spell] of player.getSpellBook()) {
+    //     console.log(`[${slot}] Level: ${spell.level}, Cooldown Expires At: ${spell.expiresAt}`)
+    // }
+
+    // while (true) {
+    //     console.clear();
+    //     console.log(`${player.getName()} > HP: ${player.getHealth()}/${player.getMaxHealth()}`);
+    //     for (const [slot, spell] of player.getSpellBook()) {
+    //         console.log(`[${slot}] Level: ${spell.level}, Cooldown Expires At: ${spell.expiresAt}`)
+    //     }
     
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
+    //     await new Promise((resolve) => setTimeout(resolve, 1000));
+    // }
 });
 
 Core.getEventManager().subscribe(EventType.OnCloseLeague, () => {

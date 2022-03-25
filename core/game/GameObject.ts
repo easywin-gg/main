@@ -1,5 +1,6 @@
 import memoryjs from 'memoryjs';
 import Core from '../app/Core';
+import Buff from './objects/Buff';
 import Spell from './objects/Spell';
 import Offsets from './offsets/Offsets';
 
@@ -32,6 +33,40 @@ class GameObject {
         return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectMaxHealth, memoryjs.FLOAT);
     }
 
+    public getBuffs(): Buff[] {
+        const buffs: Buff[] = [];
+
+        const buffEntryStart = memoryjs.readMemory(
+            this.core.process.handle,
+            this.address + Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesStart,
+            memoryjs.INT
+        );
+
+        const buffEntryEnd = memoryjs.readMemory(
+            this.core.process.handle,
+            this.address + Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesEnd,
+            memoryjs.INT
+        );
+
+
+        var currentAddress = buffEntryStart;
+        while (currentAddress != buffEntryEnd) {
+            const buffAddress = memoryjs.readMemory(
+                this.core.process.handle,
+                currentAddress,
+                memoryjs.INT
+            );
+
+            try {
+                const buff = new Buff(this.core, buffAddress);
+                buffs.push(buff);
+            } catch {};
+
+            currentAddress += 0x8;
+        }
+
+        return buffs;
+    }
 
     public getSpellBook(): Map<SpellSlot, Spell> {
         const spells = new Map<SpellSlot, Spell>();
@@ -53,9 +88,11 @@ class GameObject {
         for (var i = 0; i < Object.keys(SpellSlot).length; i++) {
             const spellAddress = Core.readIntegerFromBuffer(spellBookArray, i * 4);
 
-            const spell = new Spell(this.core, spellAddress);
-            const slot = Object.values(SpellSlot)[i] as SpellSlot;
-            spells.set(slot, spell);
+            try {
+                const slot = Object.values(SpellSlot)[i] as SpellSlot;
+                const spell = new Spell(this.core, spellAddress);
+                spells.set(slot, spell);
+            } catch {}
         }
 
         return spells;

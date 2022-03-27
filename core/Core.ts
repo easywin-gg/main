@@ -1,6 +1,6 @@
 import { Module, Process } from 'memoryjs';
-import DrawManager from '../draw/DrawManager';
-import Game from '../game/Game';
+import DrawManager from './draw/DrawManager';
+import Game from './game/Game';
 
 class Core {
 
@@ -15,6 +15,9 @@ class Core {
     constructor(process: Process, module: Module) {
         this.process = process;
         this.module = module;
+
+        this.draw = new DrawManager();
+        this.game = new Game(this);
     }
 
     public static readIntegerFromBuffer(buffer: Buffer, offset: number) {

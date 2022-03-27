@@ -1,9 +1,9 @@
-import Core from "../app/Core";
+import Core from "../Core";
 import memoryjs from 'memoryjs';
 import Offsets from "./offsets/Offsets";
 import GameObject from "./GameObject";
 
-const MAX_UNITS = 500;
+const MAX_UNITS = 500; 
 
 class Game {
 

@@ -3,7 +3,7 @@ const GameClient = {
     LocalPlayer: 0x31168D4,
     UnderMouseObject: 0x310A9D8,
     Renderer: 0x3143DE0,
-    ViewProjMatrices: 0x3140F40,
+    ViewProjMatrices: 0x3140F40, 
     ViewMatrix: 0x3143E38,
     ProjMatrix: 0x3143E78,
     oRendererWidth: 0x0,

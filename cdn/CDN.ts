@@ -1,6 +1,6 @@
 import fs from 'fs';
-import DDragonAPI from '../api/DDragonAPI';
-import { downloadUnitData, transformUnitDataToJson } from '../utils/unitDataUtils';
+import DDragonAPI from './api/DDragonAPI';
+import { downloadUnitData, transformUnitDataToJson } from './utils/unitDataUtils';
 
 class CDN {
 
@@ -15,6 +15,8 @@ class CDN {
                 flag: 'w'
             });
         }
+
+        this.initializeDrawFiles();
 
         console.log(`[CDN] Checking for updates...`);
         const latestVersion = await DDragonAPI.getLatestVersion();
@@ -40,13 +42,43 @@ class CDN {
     private async downloadAndTransformUnitData() {
         console.log(`[CDN] Downloading unit data...`);
         const units = await DDragonAPI.getUnitDataList()
-            .then((page)=> page.split('\n') 
-            .filter((x: string) => x.includes('<a href="'))
-            .map((x: string) => x.split('title="')[1]?.split('"')[0].trim())
-            .filter(Boolean));
+            .then((page) => page.split('\n')
+                .filter((x: string) => x.includes('<a href="'))
+                .map((x: string) => x.split('title="')[1]?.split('"')[0].trim())
+                .filter(Boolean));
 
         await downloadUnitData(units);
         await transformUnitDataToJson();
+
+        console.log(`[CDN] Unit data downloaded`);
+    }
+
+    private async initializeDrawFiles() {
+        console.log(`[CDN] Initializing draw files...`);
+
+        if (!fs.existsSync(`${CDN.MAIN_FOLDER_PATH}/draw`)) {
+            console.log(`[CDN] Creating draw folder...`);
+            fs.mkdirSync(CDN.MAIN_FOLDER_PATH + '/draw');
+        }
+
+        const drawFile = fs.readFileSync(`${process.cwd()}/cdn/static/draw.html`, 'utf-8');
+        fs.writeFileSync(`${CDN.MAIN_FOLDER_PATH}/draw/index.html`, drawFile, {
+            encoding: 'utf-8',
+            flag: 'w'
+        });
+
+        fs.writeFileSync(`${CDN.MAIN_FOLDER_PATH}/draw/draw.json`, JSON.stringify({
+            arcs: {},
+            rectangles: {},
+            circles: {},
+            images: {},
+            texts: {},
+            triangles: {},
+            squares: {},
+            lines: {},
+        }));
+
+        console.log(`[CDN] Draw files initialized`);
     }
 }
 

@@ -1,18 +1,16 @@
-import Game from "../game/Game";
-
-type ScriptInfo = {
+type PluginInfo = {
     name: string,
     version: number,
     author: string
 }
 
-abstract class Script {
+abstract class Plugin {
 
     public name: string;
     public version: number;
     public author: string;
 
-    constructor({ name, version, author }: ScriptInfo) {
+    constructor({ name, version, author }: PluginInfo) {
         this.name = name;
         this.version = version;
         this.author = author;
@@ -23,4 +21,4 @@ abstract class Script {
     
 }
 
-export default Script;
+export default Plugin;

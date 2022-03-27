@@ -1,8 +1,8 @@
 import memoryjs from 'memoryjs';
-import Core from '../app/Core';
-import { Vector3 } from './GameRenderer';
+import Core from '../Core';
+import { Vector3 } from './renderer/GameRenderer';
 import Buff from './objects/Buff';
-import Spell from './objects/Spell';
+import Spell from './objects/Spell'; 
 import Offsets from './offsets/Offsets';
 
 export enum SpellSlot {

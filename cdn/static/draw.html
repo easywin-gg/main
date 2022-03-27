@@ -1,0 +1,119 @@
+<head style="overflow: hidden;">
+</head>
+
+<body style="padding: 0; margin: 0; overflow: hidden; ">
+    <canvas id="overlay" width="1920" height="1080"></canvas>
+    <script>
+        const electron = require('electron');
+        const fs = require('fs');
+
+        const canvas = document.getElementById('overlay');
+        const context = canvas.getContext('2d');
+
+        const draw = (path) => {
+            try {
+                const draws = JSON.parse(fs.readFileSync(`${path}/draw/draw.json`, 'utf-8'));
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                for (const { position, radius, startAngle, endAngle, antiClockwise, color, fill } of Object.values(draws['arcs'])) {
+                    console.log('draw');
+                    context.beginPath();
+                    context.arc(position.x, position.y, radius, startAngle, endAngle, antiClockwise);
+                    if (fill) {
+                        context.fillStyle = color;
+                        context.fill();
+                    } else {
+                        context.strokeStyle = color;
+                        context.stroke();
+                    }
+                }
+
+                for (const { position, radius, color, fill } of Object.values(draws['circles'])) {
+                    context.beginPath();
+                    context.arc(position.x, position.y, radius, 0, 2 * Math.PI);
+                    if (fill) {
+                        context.fillStyle = color;
+                        context.fill();
+                    } else {
+                        context.strokeStyle = color;
+                        context.stroke();
+                    }
+                }
+
+                for (const { position, width, height, color, fill } of Object.values(draws['rectangles'])) {
+                    context.beginPath();
+                    context.rect(position.x, position.y, width, height);
+                    if (fill) {
+                        context.fillStyle = color;
+                        context.fill();
+                    } else {
+                        context.strokeStyle = color;
+                        context.stroke();
+                    }
+                }
+
+                for (const { position, width, height, color, fill } of Object.values(draws['squares'])) {
+                    context.beginPath();
+                    context.rect(position.x, position.y, width, height);
+                    if (fill) {
+                        context.fillStyle = color;
+                        context.fill();
+                    } else {
+                        context.strokeStyle = color;
+                        context.stroke();
+                    }
+                }
+
+                for (const { position, width, height, color, fill } of Object.values(draws['triangles'])) {
+                    context.beginPath();
+                    context.moveTo(position.x, position.y);
+                    context.lineTo(position.x + width, position.y + height);
+                    context.lineTo(position.x, position.y + height);
+                    context.lineTo(position.x, position.y);
+
+                    if (fill) {
+                        context.fillStyle = color;
+                        context.fill();
+                    } else {
+                        context.strokeStyle = color;
+                        context.stroke();
+                    }
+                }
+
+                for (const { position, width, height, color, fill } of Object.values(draws['lines'])) {
+                    context.beginPath();
+                    context.moveTo(position.x, position.y);
+                    context.lineTo(position.x + width, position.y + height);
+
+                    if (fill) {
+                        context.fillStyle = color;
+                        context.fill();
+                    } else {
+                        context.strokeStyle = color;
+                        context.stroke();
+                    }
+                }
+
+                for (const { position, text, size, color } of Object.values(draws['texts'])) {
+                    context.font = `${size}px Arial`;
+                    context.fillStyle = color;
+                    context.fillText(text, position.x, position.y);
+                }
+
+                for (const { position, width, height, imagePath } of Object.values(draws['images'])) {
+                    const image = new Image();
+                    image.src = `${path}/${imagePath}`;
+                    image.onload = () => {
+                        context.drawImage(image, position.x, position.y, width, height);
+                    }
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        electron.ipcRenderer.on('draw', (event, path) => {
+            setInterval(() => draw(path), 100);
+        });
+
+    </script>
+</body>

@@ -1,9 +1,9 @@
-import Core from "../../app/Core";
+import Core from "../../Core";
 import memoryjs from 'memoryjs';
 import Offsets from "../offsets/Offsets";
 import { SpellSlot } from "../GameObject";
 
-class Spell {
+class Spell { 
 
     public level: number;
     public expiresAt: number;

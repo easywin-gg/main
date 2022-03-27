@@ -1,6 +1,6 @@
 import fs from 'fs';
 import DDragonAPI from '../api/DDragonAPI';
-import CDN from '../app/CDN';
+import CDN from '../CDN';
 
 const downloadUnitData = async (units: any[]) => {
     if (!fs.existsSync(`${CDN.MAIN_FOLDER_PATH}/unitData`)) {

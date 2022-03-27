@@ -1,4 +1,8 @@
-import CDN from "./cdn/app/CDN";
+import CDN from "./cdn/CDN";
+import memoryjs from 'memoryjs';
+import Core from "./core/Core";
+import SDK from "./core/sdk/SDK";
+import { Vector2 } from "./core/game/renderer/GameRenderer";
 
 class Rank1 {
 
@@ -17,10 +21,48 @@ class Rank1 {
         console.log('       \\_| \\_\\_| |_/\\_| \\_/\\_| \\_/ \\___/');
         console.log('                                   ');
 
-        console.log('[Rank1] Starting...');
+        console.log('[RANK1] Starting...');
         await this.cdn.start();
+
+        const process = memoryjs.openProcess('League of Legends.exe');
+        const module = memoryjs.findModule('League of Legends.exe', process.th32ProcessID);
+
+        const core = new Core(process, module);
+        const sdk = new SDK(core);
+        const player = core.game.localPlayer;
+
+        console.log(`Welcome ${player.getName()}`);
+        core.game.readObjects();
+        for (const [name, buff] of player.getBuffManager()) {
+            console.log(`[BUFF] ${name} > Count: ${buff.count}, Expires At: ${buff.expiresAt}`)
+        }
+
+        for (const [slot, spell] of player.getSpellBook()) {
+            console.log(`[${slot}] Level: ${spell.level}, Cooldown Expires At: ${spell.expiresAt}`)
+        }
+
+        const position: Vector2 = {
+            x: (sdk.renderer.width / 2) - 600,
+            y: (sdk.renderer.height / 2) - 490
+        };
+        
+        console.log('[RANK1] Started');
+
+        while(true) {
+            // const position = sdk.renderer.worldToScreen(player.getPosition());
+
+            sdk.drawText({
+                key: 'player',
+                text: `vc me ama e consegue fazer gf e betar outras pessoas`,
+                position,
+                size: 50,
+                color: 'blue',
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
     }
 }
 
 const main = new Rank1();
-main.start();
+main.start();   

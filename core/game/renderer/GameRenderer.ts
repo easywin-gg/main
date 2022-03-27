@@ -1,10 +1,6 @@
-import DrawManager from "../../draw/DrawManager";
-import Game from "../Game";
-
 import memoryjs from 'memoryjs';
-import Core from "../../app/Core";
+import Core from "../../Core";
 import Offsets from "../offsets/Offsets";
-import fs from "fs";
 
 export type Vector2 = {
     x: number;
@@ -24,20 +20,11 @@ export type Vector4 = {
     w: number;
 }
 
-type DrawCircleArguments = {
-    key: string,
-    position: Vector2,
-    radius: number,
-    startAngle: number,
-    endAngle: number,
-    antiClockwise: boolean,
-    color: string
-}
 
 class GameRenderer {
 
-    private width;
-    private height;
+    public width;
+    public height;
 
     constructor(
         private readonly core: Core
@@ -106,12 +93,6 @@ class GameRenderer {
         }
 
         return out;
-    }
-
-    drawCircleAt(args: DrawCircleArguments) {
-        const draw = JSON.parse(fs.readFileSync(`${process.cwd()}/draw/draw.json`, 'utf-8'));
-        draw['arcs'][args.key] = args;
-        fs.writeFileSync(`${process.cwd()}/draw/draw.json`, JSON.stringify(draw), 'utf-8');
     }
 }
 

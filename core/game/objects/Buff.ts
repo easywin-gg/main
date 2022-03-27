@@ -1,10 +1,10 @@
-import Core from "../../app/Core";
+import Core from "../../Core";
 import memoryjs from 'memoryjs';
 import Offsets from "../offsets/Offsets";
 
 class Buff {
 
-    private info: number;
+    private info: number; 
 
     public name: string;
     public count: number;

@@ -2,6 +2,7 @@ import Core from "../app/Core";
 import memoryjs from 'memoryjs';
 import Offsets from "./offsets/Offsets";
 import GameObject from "./GameObject";
+import GameRenderer from "./GameRenderer";
 
 const MAX_UNITS = 500;
 
@@ -30,6 +31,10 @@ class Game {
 
     getGameTime(): number {
         return memoryjs.readMemory(this.core.process.handle, this.core.module.modBaseAddr + Offsets.GameTime, memoryjs.FLOAT);;
+    }
+
+    getGameRenderer() {
+        return new GameRenderer(this.core);
     }
 
     readObjects() { 
@@ -65,29 +70,29 @@ class Game {
 
             visitedAddress.push(currentNode.address);
 
-            try {
-                const data = memoryjs.readBuffer(this.core.process.handle, currentNode.address, 0x18);
-                unitsRead += 1;
+            const data = memoryjs.readBuffer(this.core.process.handle, currentNode.address, 0x18);
+            unitsRead += 1;
 
-                for (var i = 0; i < 3; i++) {
-                    var child_address = Core.readIntegerFromBuffer(data, i * 4);
-                    if (visitedAddress.includes(child_address)) continue;
+            for (var i = 0; i < 3; i++) {
+                var child_address = Core.readIntegerFromBuffer(data, i * 4);
+                if (visitedAddress.includes(child_address)) continue;
 
-                    currentNode.next = { address: child_address, next: currentNode.next }
-                }
+                currentNode.next = { address: child_address, next: currentNode.next }
+            }
 
-                const networkId = Core.readIntegerFromBuffer(data, Offsets.MapNodeNetId);
-                if (networkId - 0x40000000 <= 0x100000) {
-                    const pointer = Core.readIntegerFromBuffer(data, Offsets.MapNodeObject);
+            const networkId = Core.readIntegerFromBuffer(data, Offsets.MapNodeNetId);
+            if (networkId - 0x40000000 <= 0x100000) {
+                const pointer = Core.readIntegerFromBuffer(data, Offsets.MapNodeObject);
 
+                try {
                     const object = new GameObject(this.core, pointer);
                     const name = object.getName();
-                    if (name.length <= 2 || !/^[ -~\t\n\r]+$/.test(name)) return;
-    
+                    if (name.length <= 2 || !/^[ -~\t\n\r]+$/.test(name)) continue;
+                    
                     this.others.push(object);
-                }
-            } catch {}
-            
+                } catch {}
+            }
+
             currentNode = currentNode.next
         }
     }

@@ -1,4 +1,5 @@
 import memoryjs, { Module, Process } from 'memoryjs';
+import DrawManager from '../draw/DrawManager';
 import EventBus, { EventType } from '../events/EventBus';
 import Game from '../game/Game';
 
@@ -15,7 +16,9 @@ class Core {
     private searchingProcessInterval?: NodeJS.Timer;
     private open: boolean;
     
+    public draw!: DrawManager;
     public game!: Game;
+
     public process!: Process;
     public module!: Module;
 
@@ -31,15 +34,11 @@ class Core {
                     this.process = memoryjs.openProcess('League of Legends.exe');
                     if(this.process) {
                         this.module = memoryjs.findModule('League of Legends.exe', this.process.th32ProcessID);
-                    } else if(this.open) {
-                        console.log("CARALHO");
-                        this.open = false;
-                        Core.eventBus.publish(EventType.OnUnload, this);
-                        return;
                     }
     
                     if(this.module && !this.open) {
                         this.open = true;
+                        this.draw = new DrawManager();
                         this.game = new Game(this);
                         Core.eventBus.publish(EventType.OnLoad, this);
                     }

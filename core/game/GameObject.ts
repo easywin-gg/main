@@ -1,5 +1,6 @@
 import memoryjs from 'memoryjs';
 import Core from '../app/Core';
+import { Vector3 } from './GameRenderer';
 import Buff from './objects/Buff';
 import Spell from './objects/Spell';
 import Offsets from './offsets/Offsets';
@@ -33,7 +34,27 @@ class GameObject {
         return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectMaxHealth, memoryjs.FLOAT);
     }
 
-    public getBuffs(): Buff[] {
+    public getPosition(): Vector3 {
+        return {
+            x: memoryjs.readMemory(
+                this.core.process.handle,
+                this.address + Offsets.ObjectPosition,
+                memoryjs.FLOAT
+            ),
+            y: memoryjs.readMemory(
+                this.core.process.handle,
+                this.address + Offsets.ObjectPosition + Offsets.ObjectPositionY,
+                memoryjs.FLOAT
+            ),
+            z: memoryjs.readMemory(
+                this.core.process.handle,
+                this.address + Offsets.ObjectPosition + Offsets.ObjectPositionZ,
+                memoryjs.FLOAT
+            )
+        }
+    }
+
+    public getBuffManager(): Map<string, Buff> {
         const buffEntryStart = memoryjs.readMemory(
             this.core.process.handle,
             this.address + Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesStart,
@@ -46,7 +67,7 @@ class GameObject {
             memoryjs.INT
         );
 
-        if(buffEntryStart <= 0 || buffEntryEnd <= 0) return [];
+        if(buffEntryStart <= 0 || buffEntryEnd <= 0) new Map();
         return Buff.loadBuffManager(this.core, buffEntryStart, buffEntryEnd);
     }
 
@@ -55,9 +76,9 @@ class GameObject {
             this.core.process.handle,
             this.address + Offsets.ObjectSpellBook,
             memoryjs.INT
-        );
+        );  
 
-        if (spellBook <= 0) return new Map<SpellSlot, Spell>();
+        if (spellBook <= 0) return new Map();
         return Spell.loadSpellBook(this.core, spellBook);
     }
 

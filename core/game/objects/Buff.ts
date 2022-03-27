@@ -27,8 +27,8 @@ class Buff {
         this.expiresAt = Core.readFloatFromBuffer(data, Offsets.BuffEndTime);
     }
 
-    public static loadBuffManager(core: Core, buffEntryStart: number, buffEntryEnd: number) {
-        const buffs: Buff[] = [];
+    public static loadBuffManager(core: Core, buffEntryStart: number, buffEntryEnd: number): Map<string, Buff> {
+        const buffs = new Map<string, Buff>();
 
         var currentAddress = buffEntryStart;
         while (currentAddress != buffEntryEnd) {
@@ -40,7 +40,7 @@ class Buff {
 
             try {
                 const buff = new Buff(core, buffAddress);
-                buffs.push(buff);
+                buffs.set(buff.name, buff);
             } catch {};
 
             currentAddress += 0x8;

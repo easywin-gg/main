@@ -100,6 +100,12 @@
     "typeRoots": [
       "./node_modules/@types",
       "./@types",
-    ]
-  }
+    ],
+  },
+  "exclude": [
+    "imgui-js",
+    "node_modules",
+    "@types",
+    "scripts"
+  ]
 }

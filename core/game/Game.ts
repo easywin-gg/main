@@ -2,7 +2,6 @@ import Core from "../app/Core";
 import memoryjs from 'memoryjs';
 import Offsets from "./offsets/Offsets";
 import GameObject from "./GameObject";
-import GameRenderer from "./GameRenderer";
 
 const MAX_UNITS = 500;
 
@@ -31,10 +30,6 @@ class Game {
 
     getGameTime(): number {
         return memoryjs.readMemory(this.core.process.handle, this.core.module.modBaseAddr + Offsets.GameTime, memoryjs.FLOAT);;
-    }
-
-    getGameRenderer() {
-        return new GameRenderer(this.core);
     }
 
     readObjects() { 

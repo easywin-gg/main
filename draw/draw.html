@@ -10,25 +10,22 @@
         const canvas = document.getElementById('overlay');
         const context = canvas.getContext('2d');
 
-        const start = ()=> {
-            setInterval(()=> {
-                try {
-                    const draws = JSON.parse(fs.readFileSync(`${process.cwd()}/draw/draw.json`, 'utf-8'));
-                    context.clearRect(0, 0, canvas.width, canvas.height);
-                    for(const { position, radius, startAngle, endAngle, antiClockwise, color } of Object.values(draws['arcs'])) {
-                        console.log('draw');
-                        context.beginPath();
-                        context.arc(position.x, position.y, radius, startAngle,endAngle, antiClockwise);
-                        context.strokeStyle = color;
-                        context.stroke();
-                    }
-                } catch(error) {
-    
+        const draw = () => {
+            try {
+                const draws = JSON.parse(fs.readFileSync(`${process.cwd()}/draw/draw.json`, 'utf-8'));
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                for (const { position, radius, startAngle, endAngle, antiClockwise, color } of Object.values(draws['arcs'])) {
+                    console.log('draw');
+                    context.beginPath();
+                    context.arc(position.x, position.y, radius, startAngle, endAngle, antiClockwise);
+                    context.strokeStyle = color;
+                    context.stroke();
                 }
-            }, 1)
-            console.log('start')
+            } catch (error) {
+
+            }
         }
 
-        start();
+        setInterval(start, 10);
     </script>
 </body>

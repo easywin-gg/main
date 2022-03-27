@@ -1,8 +1,8 @@
 import Core from "./app/Core";
 import Game from "./game/Game";
-import { EventType } from "./events/EventBus";
+import { EventType } from "./events/LeagueEvent";
 import DrawManager from "./draw/DrawManager";
-import GameRenderer from "./game/GameRenderer";
+import GameRenderer from "./game/renderer/GameRenderer";
 
 const core = new Core({ searchProcessIntervalSeconds: 1 });
 core.start();
@@ -11,7 +11,7 @@ function randomIntFromInterval(min: number, max: number) { // min and max includ
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-Core.getEventManager().subscribe(EventType.OnLoad, async (script: Core) => {
+Core.getEventManager().subscribe(EventType.OnOpen, async (script: Core) => {
     console.log(`League Process found, ${script.process.th32ProcessID}.`);
     const player = script.game.localPlayer;
     console.log(`Welcome ${player.getName()}`);
@@ -67,6 +67,6 @@ Core.getEventManager().subscribe(EventType.OnLoad, async (script: Core) => {
     // }
 });
 
-Core.getEventManager().subscribe(EventType.OnUnload, () => {
+Core.getEventManager().subscribe(EventType.OnClose, () => {
     console.log(`League closed.`);
 })

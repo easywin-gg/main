@@ -16,7 +16,8 @@ class DrawManager {
 
   public start() {
     fs.writeFileSync(`${process.cwd()}/draw/draw.json`, JSON.stringify({
-      arcs: {}
+      arcs: {},
+      polylines: {},
     }), 'utf-8');
     DrawManager.window.webContents.send('start');
   }

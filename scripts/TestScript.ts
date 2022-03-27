@@ -1,11 +1,11 @@
-import Core from "../core/app/Core";
-import { EventType } from "../core/events/EventBus";
-import Script from "../core/script/Script";
+import SDK from "../core/sdk/SDK";
+import { EventType } from "../core/events/LeagueEvent";
+import Plugin from "../core/plugin/Plugin";
 
-class TestScript extends Script {
+class TestScript extends Plugin {
 
     constructor(
-        private readonly core: Core
+        private readonly sdk: SDK
     ) {
         super({
             name: 'test',
@@ -15,15 +15,12 @@ class TestScript extends Script {
     }
 
     public async load() {
-        Core.getEventManager().subscribe(EventType.OnDraw, this.onDraw);
     }
 
     public async unload() {
 
     }
 
-    private async onDraw() {
-    }
 }
 
 export default TestScript;

@@ -1,9 +1,9 @@
-import DrawManager from "../draw/DrawManager";
-import Game from "./Game";
+import DrawManager from "../../draw/DrawManager";
+import Game from "../Game";
 
 import memoryjs from 'memoryjs';
-import Core from "../app/Core";
-import Offsets from "./offsets/Offsets";
+import Core from "../../app/Core";
+import Offsets from "../offsets/Offsets";
 import fs from "fs";
 
 export type Vector2 = {
@@ -27,9 +27,9 @@ export type Vector4 = {
 type DrawCircleArguments = {
     key: string,
     position: Vector2,
-    radius: number, 
-    startAngle: number, 
-    endAngle: number, 
+    radius: number,
+    startAngle: number,
+    endAngle: number,
     antiClockwise: boolean,
     color: string
 }
@@ -38,7 +38,6 @@ class GameRenderer {
 
     private width;
     private height;
-    private viewProjMatrix: number[] = [];
 
     constructor(
         private readonly core: Core
@@ -54,15 +53,17 @@ class GameRenderer {
 
         this.width = 1920;
         this.height = 1080;
+    }
 
+    worldToScreen(position: Vector3): Vector2 {
         const data = memoryjs.readBuffer(
             this.core.process.handle,
             this.core.module.modBaseAddr + Offsets.ViewProjMatrices,
             128
         );
 
-        let viewMatrix: any[] = [];
-        let projMatrix: any[] = [];
+        const viewMatrix: number[] = [];
+        const projMatrix: number[] = [];
         for (var i = 0; i < 16; i++) {
             viewMatrix.push(Core.readFloatFromBuffer(data, i * 4));
         }
@@ -71,10 +72,29 @@ class GameRenderer {
             projMatrix.push(Core.readFloatFromBuffer(data, 64 + (i * 4)));
         }
 
-        this.viewProjMatrix = this.multiplyMatrices(viewMatrix, projMatrix);
+        const viewProjMatrix = this.multiplyMatrices(viewMatrix, projMatrix);
+
+        const clipCoords: Vector4 = {
+            x: position.x * viewProjMatrix[0] + position.y * viewProjMatrix[4] + position.z * viewProjMatrix[8] + viewProjMatrix[12],
+            y: position.x * viewProjMatrix[1] + position.y * viewProjMatrix[5] + position.z * viewProjMatrix[9] + viewProjMatrix[13],
+            z: position.x * viewProjMatrix[2] + position.y * viewProjMatrix[6] + position.z * viewProjMatrix[10] + viewProjMatrix[14],
+            w: position.x * viewProjMatrix[3] + position.y * viewProjMatrix[7] + position.z * viewProjMatrix[11] + viewProjMatrix[15]
+        };
+
+        if (clipCoords.w < 1.0) clipCoords.w = 1.;
+
+        const vec2: Vector2 = {
+            x: clipCoords.x / clipCoords.w,
+            y: clipCoords.y / clipCoords.w
+        };
+
+        return {
+            x: (this.width / 2. * vec2.x) + (vec2.x + this.width / 2.),
+            y: -(this.height / 2. * vec2.y) + (vec2.y + this.height / 2.)
+        };
     }
 
-    multiplyMatrices(a: number[], b: number[]) {
+    private multiplyMatrices(a: number[], b: number[]) {
         let out = []
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
@@ -86,25 +106,6 @@ class GameRenderer {
         }
 
         return out;
-    }
-    
-    worldToScreen(pos: Vector3): Vector2 {
-        let clipCoords: Vector4 = { x: 0, y: 0, z: 0, w: 0 };
-        clipCoords.x = pos.x * this.viewProjMatrix[0] + pos.y * this.viewProjMatrix[4] + pos.z * this.viewProjMatrix[8] + this.viewProjMatrix[12];
-        clipCoords.y = pos.x * this.viewProjMatrix[1] + pos.y * this.viewProjMatrix[5] + pos.z * this.viewProjMatrix[9] + this.viewProjMatrix[13];
-        clipCoords.z = pos.x * this.viewProjMatrix[2] + pos.y * this.viewProjMatrix[6] + pos.z * this.viewProjMatrix[10] + this.viewProjMatrix[14];
-        clipCoords.w = pos.x * this.viewProjMatrix[3] + pos.y * this.viewProjMatrix[7] + pos.z * this.viewProjMatrix[11] + this.viewProjMatrix[15];
-        if (clipCoords.w < 1.0)
-            clipCoords.w = 1.;
-
-        let M: Vector2 = { x: 0, y: 0 };
-        M.x = clipCoords.x / clipCoords.w;
-        M.y = clipCoords.y / clipCoords.w;
-
-        const x = (this.width / 2. * M.x) + (M.x + this.width / 2.);
-        const y = -(this.height / 2. * M.y) + (M.y + this.height / 2.)
-
-        return { x, y };
     }
 
     drawCircleAt(args: DrawCircleArguments) {

@@ -1,6 +1,6 @@
 import memoryjs, { Module, Process } from 'memoryjs';
 import DrawManager from '../draw/DrawManager';
-import EventBus, { EventType } from '../events/EventBus';
+import LeagueEventManager, { EventType } from '../events/LeagueEvent';
 import Game from '../game/Game';
 
 type LeagueProcessConstructorArgs = {
@@ -9,7 +9,7 @@ type LeagueProcessConstructorArgs = {
 
 class Core {
 
-    private static eventBus: EventBus = new EventBus();
+    private static eventBus: LeagueEventManager = new LeagueEventManager();
 
     private readonly args: LeagueProcessConstructorArgs;
     
@@ -40,7 +40,7 @@ class Core {
                         this.open = true;
                         this.draw = new DrawManager();
                         this.game = new Game(this);
-                        Core.eventBus.publish(EventType.OnLoad, this);
+                        Core.eventBus.publish(EventType.OnOpen, this);
                     }
                 } catch {
     

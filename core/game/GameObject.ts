@@ -4,6 +4,7 @@ import { Vector3 } from './renderer/GameRenderer';
 import Buff from './objects/Buff';
 import Spell from './objects/Spell'; 
 import Offsets from './offsets/Offsets';
+import DDragonUnit from './ddragon/DDragonUnit';
 
 export enum SpellSlot {
     Q = 'Q',
@@ -11,19 +12,20 @@ export enum SpellSlot {
     E = 'E',
     R = 'R',
     D = 'D',
-    F = 'F'
+    F = 'F' 
 }
 
-class GameObject {
+class GameObject extends DDragonUnit {
 
     constructor(
         protected readonly core: Core,
         protected readonly address: number
     ) {
+        super(core.process, address); 
     }
 
-    public getName(): string {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectName, memoryjs.STRING);
+    public getPlayerName(): string {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectPlayerName, memoryjs.STRING);
     }
 
     public getHealth(): number {

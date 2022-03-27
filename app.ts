@@ -1,8 +1,7 @@
 import CDN from "./cdn/CDN";
-import memoryjs from 'memoryjs';
+import memoryjs from "memoryjs";
 import Core from "./core/Core";
 import SDK from "./core/sdk/SDK";
-import { Vector2 } from "./core/game/renderer/GameRenderer";
 
 class Rank1 {
 
@@ -28,39 +27,40 @@ class Rank1 {
         const module = memoryjs.findModule('League of Legends.exe', process.th32ProcessID);
 
         const core = new Core(process, module);
-        const sdk = new SDK(core);
         const player = core.game.localPlayer;
 
-        console.log(`Welcome ${player.getName()}`);
-        core.game.readObjects();
-        for (const [name, buff] of player.getBuffManager()) {
-            console.log(`[BUFF] ${name} > Count: ${buff.count}, Expires At: ${buff.expiresAt}`)
-        }
+        console.log(player.getBaseAttackRange());
+        core.game.updateObjectCache();
 
-        for (const [slot, spell] of player.getSpellBook()) {
-            console.log(`[${slot}] Level: ${spell.level}, Cooldown Expires At: ${spell.expiresAt}`)
-        }
+        // console.log(`Welcome ${player.getName()}`);
+        // for (const [name, buff] of player.getBuffManager()) {
+        //     console.log(`[BUFF] ${name} > Count: ${buff.count}, Expires At: ${buff.expiresAt}`)
+        // }
 
-        const position: Vector2 = {
-            x: (sdk.renderer.width / 2) - 600,
-            y: (sdk.renderer.height / 2) - 490
-        };
+        // for (const [slot, spell] of player.getSpellBook()) {
+        //     console.log(`[${slot}] Level: ${spell.level}, Cooldown Expires At: ${spell.expiresAt}`)
+        // }
+
+        // const position: Vector2 = {
+        //     x: (sdk.renderer.width / 2) - 600,
+        //     y: (sdk.renderer.height / 2) - 490
+        // };
         
-        console.log('[RANK1] Started');
+        // console.log('[RANK1] Started');
 
-        while(true) {
-            // const position = sdk.renderer.worldToScreen(player.getPosition());
+        // while(true) {
+        //     // const position = sdk.renderer.worldToScreen(player.getPosition());
 
-            sdk.drawText({
-                key: 'player',
-                text: `vc me ama e consegue fazer gf e betar outras pessoas`,
-                position,
-                size: 50,
-                color: 'blue',
-            });
+        //     sdk.drawText({
+        //         key: 'player',
+        //         text: `vc me ama e consegue fazer gf e betar outras pessoas`,
+        //         position,
+        //         size: 50,
+        //         color: 'blue',
+        //     });
 
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+        //     await new Promise(resolve => setTimeout(resolve, 1000));
+        // }
     }
 }
 

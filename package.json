@@ -1,13 +1,14 @@
 {
   "name": "rank1-js",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./build/app.js",
   "types": "./src/@types/",
   "license": "MIT",
   "scripts": {
     "dev": "ts-node-dev core/index.ts",
     "cdn": "ts-node-dev cdn/index.ts",
-    "main": "ts-node-dev app.ts"
+    "main": "ts-node-dev app.ts",
+    "build": "electron-packager . Rank1 --overwrite --platform=win32 --arch=ia32 --prune=true --out=release-builds"
   },
   "dependencies": {
     "axios": "^0.26.1",

@@ -11,12 +11,13 @@ const GameClient = {
 }
 
 const GameObject = {
-    ObjectName: 0x6C,
+    ObjectName: 0x2BE4,
+    ObjectPlayerName: 0x6C,
 
     ObjectHealth: 0xDB4,
     ObjectMaxHealth: 0xDC4,
 
-    ObjectPosition: 0x1F4,
+    ObjectPosition: 0x1F4, 
     ObjectPositionY: 0x4,
     ObjectPositionZ: 0x8,
 

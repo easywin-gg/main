@@ -3,28 +3,32 @@ import memoryjs from 'memoryjs';
 import Offsets from "./offsets/Offsets";
 import GameObject from "./GameObject";
 
-const MAX_UNITS = 500; 
+const MAX_UNITS = 500;
+
+export enum UnitType {
+    CHAMPIONS = 0,
+    MINIONS = 1,
+    JUNGLE = 2,
+    TURRETS = 3,
+    MISSILES = 4,
+    OTHERS = 5
+}
 
 class Game {
 
-    public champions: GameObject[] = [];
-    public minions: GameObject[] = [];
-    public jungle: GameObject[] = [];
-    public turrets: GameObject[] = [];
-    public missiles: GameObject[] = [];
-    public others: GameObject[] = [];
-
+    public cachedObjects: Map<UnitType, GameObject[]>;
     public localPlayer: GameObject
 
     constructor(
         private readonly core: Core
     ) {
         const localPlayer = memoryjs.readMemory(
-            this.core.process.handle, 
-            this.core.module.modBaseAddr + Offsets.LocalPlayer, 
+            this.core.process.handle,
+            this.core.module.modBaseAddr + Offsets.LocalPlayer,
             memoryjs.INT
         );
 
+        this.cachedObjects = new Map<UnitType, GameObject[]>();
         this.localPlayer = new GameObject(this.core, localPlayer);
     }
 
@@ -32,14 +36,7 @@ class Game {
         return memoryjs.readMemory(this.core.process.handle, this.core.module.modBaseAddr + Offsets.GameTime, memoryjs.FLOAT);;
     }
 
-    readObjects() { 
-        this.champions = [];
-        this.minions = [];
-        this.jungle = [];
-        this.turrets = [];
-        this.missiles = [];
-        this.others = [];
-
+    updateObjectCache() {
         const objectManager = memoryjs.readMemory(
             this.core.process.handle,
             this.core.module.modBaseAddr + Offsets.ObjectManager,
@@ -48,48 +45,64 @@ class Game {
 
         if (objectManager <= 0) return;
 
-        const mapRoot = memoryjs.readMemory(this.core.process.handle, objectManager + Offsets.MapRoot, memoryjs.INT);
-        const visitedAddress: number[] = [];
+        this.cachedObjects = new Map<UnitType, GameObject[]>();
 
-        var unitsRead = 0;
-        var currentNode: { address: number, next: any } = {
+        const mapRoot = memoryjs.readMemory(
+            this.core.process.handle,
+            objectManager + Offsets.MapRoot,
+            memoryjs.INT
+        );
+
+        const units: number[] = [];
+        let currentNode: { address: number, next: any } = {
             address: mapRoot,
             next: undefined
         };
 
-        while (currentNode && unitsRead < MAX_UNITS) {
-            if (visitedAddress.includes(currentNode.address)) {
+        while (currentNode && units.length < MAX_UNITS) {
+            if (units.includes(currentNode.address)) {
                 currentNode = currentNode.next;
                 continue;
             }
 
-            visitedAddress.push(currentNode.address);
-
+            units.push(currentNode.address);
             const data = memoryjs.readBuffer(this.core.process.handle, currentNode.address, 0x18);
-            unitsRead += 1;
 
             for (var i = 0; i < 3; i++) {
                 var child_address = Core.readIntegerFromBuffer(data, i * 4);
-                if (visitedAddress.includes(child_address)) continue;
+                if (units.includes(child_address)) continue;
 
                 currentNode.next = { address: child_address, next: currentNode.next }
             }
 
-            const networkId = Core.readIntegerFromBuffer(data, Offsets.MapNodeNetId);
-            if (networkId - 0x40000000 <= 0x100000) {
-                const pointer = Core.readIntegerFromBuffer(data, Offsets.MapNodeObject);
-
-                try {
-                    const object = new GameObject(this.core, pointer);
-                    const name = object.getName();
-                    if (name.length <= 2 || !/^[ -~\t\n\r]+$/.test(name)) continue;
-                    
-                    this.others.push(object);
-                } catch {}
-            }
-
+            this.scanUnit(data);
             currentNode = currentNode.next
         }
+    }
+
+    private scanUnit(data: Buffer) { 
+        const networkId = Core.readIntegerFromBuffer(data, Offsets.MapNodeNetId);
+        if (networkId - 0x40000000 <= 0x100000) {
+            const pointer = Core.readIntegerFromBuffer(data, Offsets.MapNodeObject);
+
+            try {
+                const object = new GameObject(this.core, pointer);
+                const name = object.getName();
+                console.log(name);
+
+                if (name.length <= 2 || !/^[ -~\t\n\r]+$/.test(name)) return;
+ 
+                this.pushObjectInCache(UnitType.OTHERS, object);
+            } catch { }
+        }
+    }
+
+    private pushObjectInCache(type: UnitType, object: GameObject) {
+        if (!this.cachedObjects.has(type)) {
+            this.cachedObjects.set(type, []);
+        }
+
+        this.cachedObjects.get(type)?.push(object);
     }
 }
 

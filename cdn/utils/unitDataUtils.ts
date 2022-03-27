@@ -2,44 +2,40 @@ import fs from 'fs';
 import DDragonAPI from '../api/DDragonAPI';
 import CDN from '../CDN';
 
+const UNIT_DATA_FILES_FOLDER = `${process.env.APPDATA}/rank1/data/units`;
+
 const downloadUnitData = async (units: any[]) => {
-    if (!fs.existsSync(`${CDN.MAIN_FOLDER_PATH}/unitData`)) {
-        fs.mkdirSync(`${CDN.MAIN_FOLDER_PATH}/unitData`);
+    if (!fs.existsSync(UNIT_DATA_FILES_FOLDER)) {
+        fs.mkdirSync(UNIT_DATA_FILES_FOLDER);
     }
 
     await Promise.all(units.map(async (unit) => {
         try {
             const unitPage = await DDragonAPI.getUnitData({ unitName: unit });
-            const path = `${CDN.MAIN_FOLDER_PATH}/unitData/${unit}.bin.json`;
+            const path = `${UNIT_DATA_FILES_FOLDER}/${unit}.bin.json`;
             fs.writeFileSync(path, JSON.stringify(unitPage), {
                 encoding: 'utf-8',
                 flag: 'w'
             });
-        } catch (error: any) {
-            if (!error?.response) {
-                console.log(error)
-                return;
-            }
-        }
+        } catch { }
     }));
 }
 
 const transformUnitDataToJson = async () => {
-    const files = fs.readdirSync(`${CDN.MAIN_FOLDER_PATH}/unitData`);
+    const files = fs.readdirSync(UNIT_DATA_FILES_FOLDER);
+
     const unitData: any = [];
-    const spells: any = []
+    const spellData: any = []
     await Promise.all(files.map(async (file) => {
-        const unitPage = JSON.parse(fs.readFileSync(`${CDN.MAIN_FOLDER_PATH}/unitData/${file}`, {
+        const unitPage = JSON.parse(fs.readFileSync(`${UNIT_DATA_FILES_FOLDER}/${file}`, {
             encoding: 'utf-8'
         }));
 
-        let root: any = {};
-        for (const key of Object.keys(unitPage)) {
-            if (key.endsWith('/Root')) {
-                root = unitPage[key];
-                break;
-            }
-        }
+        const rootKey = Object.keys(unitPage)
+            .find((key) => key.endsWith('/Root'))
+
+        if (!rootKey) return;
+        const root = unitPage[rootKey];
 
         const name = root['mCharacterName'] || "";
         if (name?.length < 1) {
@@ -49,39 +45,33 @@ const transformUnitDataToJson = async () => {
         let missile_speed = 0.0
         let windup = 0.0
 
-        let basic_attack;
-        for (const key of Object.keys(unitPage)) {
-            if (key.endsWith(`${name}BasicAttack`)) {
-                basic_attack = unitPage[key];
-                break;
-            }
-        }
+        const basicAttackKey = Object.keys(unitPage)
+            .find((key) => key.endsWith(`${name}BasicAttack`));
 
-        if (basic_attack) {
-            const spell = basic_attack['mSpell'];
+        let basicAttack;
+        if (basicAttackKey) {
+            basicAttack = unitPage[basicAttackKey];
+            const spell = basicAttack['mSpell'];
             if (spell) {
                 missile_speed = spell['missileSpeed'] || 0.0;
             }
         }
 
         if (root['basicAttack']) {
-            basic_attack = root['basicAttack'];
-            if (basic_attack['mAttackTotalTime'] && basic_attack['mAttackCastTime']) {
-                windup = basic_attack['mAttackCastTime'] / basic_attack['mAttackTotalTime']
+            basicAttack = root['basicAttack'];
+            if (basicAttack['mAttackTotalTime'] && basicAttack['mAttackCastTime']) {
+                windup = basicAttack['mAttackCastTime'] / basicAttack['mAttackTotalTime']
             } else {
-                windup = 0.3 + (basic_attack['mAttackDelayCastOffsetPercent'] || 0.0)
+                windup = 0.3 + (basicAttack['mAttackDelayCastOffsetPercent'] || 0.0)
             }
         }
 
         const tags = [];
-        const preTags = [];
-        if (root['unitTagsString']?.includes('|')) {
-            preTags.push(...root['unitTagsString'].split('|'));
-        } else if (root['unitTagsString']) {
-            preTags.push(root['unitTagsString']);
-        }
-
-        for (const tag of preTags) {
+        for (const tag of 
+            root['unitTagsString']?.includes('|') ?
+                root['unitTagsString'].split('|') : 
+                root['unitTagsString']
+        ) {
             tags.push(`Unit_${tag.trim().replace('=', '_')}`);
         }
 
@@ -103,28 +93,28 @@ const transformUnitDataToJson = async () => {
 
         unitData.push(unit);
 
-        for (const [key, value] of Object.entries(unitPage)) {
-            const s = (value as any)['mSpell'];
+        for (const value of Object.values(unitPage)) {
+            const mSpell = (value as any)['mSpell'];
 
-            if (s) {
+            if (mSpell) {
                 const spell = {
                     name: (value as any)['mScriptName'],
-                    "flags": s["mAffectsTypeFlags"] || 0,
-                    "delay": s["mCastTime"] || 0.5 + 0.5 * (s["delayCastOffsetPercent" || 0.0]),
-                    "castRadius": (s["castRangeDisplayOverride"] || (s['castRange'] || [s['castConeDistance'] || 0.0]))[0],
-                    "castRange": (s["castRangeDisplayOverride"] || (s["castRadius"] || [0.0]))[0],
-                    "width": s["mLineWidth"] || 0.0,
+                    "flags": mSpell["mAffectsTypeFlags"] || 0,
+                    "delay": mSpell["mCastTime"] || 0.5 + 0.5 * (mSpell["delayCastOffsetPercent" || 0.0]),
+                    "castRadius": (mSpell["castRangeDisplayOverride"] || (mSpell['castRange'] || [mSpell['castConeDistance'] || 0.0]))[0],
+                    "castRange": (mSpell["castRangeDisplayOverride"] || (mSpell["castRadius"] || [0.0]))[0],
+                    "width": mSpell["mLineWidth"] || 0.0,
                     "height": 0.0,
-                    "speed": s["missileSpeed"] || 0.0,
+                    "speed": mSpell["missileSpeed"] || 0.0,
                     "travelTime": 0.0,
                     "projectDestination": false
                 }
 
-                if (s['mCastRangeGrowthMax']) {
-                    spell['castRange'] = s['mCastRangeGrowthMax'][4]
+                if (mSpell['mCastRangeGrowthMax']) {
+                    spell['castRange'] = mSpell['mCastRangeGrowthMax'][4]
                 }
 
-                const missile = s['mMissileSpec'];
+                const missile = mSpell['mMissileSpec'];
                 if (missile) {
                     const movcomp = missile["movementComponent"]
                     if (movcomp) {
@@ -137,7 +127,7 @@ const transformUnitDataToJson = async () => {
                     }
                 }
 
-                spells.push(spell);
+                spellData.push(spell);
             }
         }
     }));
@@ -147,7 +137,7 @@ const transformUnitDataToJson = async () => {
         flag: 'w'
     });
 
-    fs.writeFileSync(`${CDN.MAIN_FOLDER_PATH}/SpellData.json`, JSON.stringify(spells), {
+    fs.writeFileSync(`${CDN.MAIN_FOLDER_PATH}/SpellData.json`, JSON.stringify(spellData), {
         encoding: 'utf-8',
         flag: 'w'
     });

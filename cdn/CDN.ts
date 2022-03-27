@@ -16,6 +16,10 @@ class CDN {
             });
         }
 
+        if (!fs.existsSync(`${CDN.MAIN_FOLDER_PATH}/data`)) {
+            fs.mkdirSync(`${CDN.MAIN_FOLDER_PATH}/data`);
+        }
+
         this.initializeDrawFiles();
 
         console.log(`[CDN] Checking for updates...`);

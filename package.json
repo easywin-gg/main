@@ -5,15 +5,19 @@
   "types": "./src/@types/",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node-dev core/index.ts"
+    "dev": "ts-node-dev core/index.ts",
+    "cdn": "ts-node-dev cdn/index.ts",
+    "main": "ts-node-dev app.ts"
   },
   "dependencies": {
+    "axios": "^0.26.1",
     "electron": "^17.1.2",
     "electron-overlay-window": "^2.0.1",
     "memoryjs": "^3.4.0",
     "robotjs": "^0.6.0"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/node": "^17.0.21",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.6.2"

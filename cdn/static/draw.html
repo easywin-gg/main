@@ -1,18 +1,52 @@
 <head style="overflow: hidden;">
 </head>
 
-<body style="padding: 0; margin: 0; overflow: hidden; ">
-    <canvas id="overlay" width="1920" height="1080"></canvas>
+<body style="padding: 0; margin: 0; overflow: hidden;">
+    <div class="wrapper">
+        <h1 class="credits">Script by Nospher & Cookie</h1>
+        <div id="aa-circle"></div>
+    </div>
+
+    <style>
+        .wrapper {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .credits {
+            color: red;
+        }
+    </style>
+
     <script>
         const electron = require('electron');
         const fs = require('fs');
+        const circleAA = document.getElementById('aa-circle');
 
-        const canvas = document.getElementById('overlay');
-        const context = canvas.getContext('2d');
+        const drawCircleAA = (path) => {
+            try {
+                const draws = JSON.parse(fs.readFileSync(`${path}/draw/draw.json`, 'utf-8'));
+                for (const { position, radius, startAngle, endAngle, antiClockwise, color, fill } of Object.values(draws['arcs'])) {
+                    circleAA.style.position = "absolute";
+                    circleAA.style.left = position.x + 'px';
+                    circleAA.style.top = position.y + 'px';
+                    circleAA.style.width = radius + 'px';
+                    circleAA.style.height = radius + 'px';
+                    circleAA.style.border = '2px solid red'
+                    circleAA.style.borderRadius = radius / 2 + 'px';
+                    circleAA.style.transform = 'perspective(1000px) rotateY(8deg) translate(-50%, -40%)';
+                }
+            } catch {
+
+            }
+        }
 
         const draw = (path) => {
             try {
-                const draws = JSON.parse(fs.readFileSync(`${path}/draw/draw.json`, 'utf-8'));
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 for (const { position, radius, startAngle, endAngle, antiClockwise, color, fill } of Object.values(draws['arcs'])) {
                     console.log('draw');
@@ -112,7 +146,7 @@
         }
 
         electron.ipcRenderer.on('draw', (event, path) => {
-            setInterval(() => draw(path), 100);
+            setInterval(() => drawCircleAA(path), 1);
         });
 
     </script>

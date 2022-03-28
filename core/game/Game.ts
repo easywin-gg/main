@@ -28,7 +28,6 @@ class Game {
 
     public getEnemyHeroes(): GameObject[] {
         const heroes = this.objectManager.objects.get(UnitType.CHAMPIONS) || [];    
-        console.log(heroes);
         return heroes.filter(o => o.getTeam() !== this.localPlayer.getTeam());
     }
 }

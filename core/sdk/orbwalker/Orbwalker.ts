@@ -2,6 +2,7 @@ import Game from "../../game/Game";
 import GameObject from "../../game/GameObject";
 import SDK from "../SDK";
 import robotjs from 'robotjs';
+import { Vector2 } from "../../game/renderer/GameRenderer";
 
 const LETHAL_TEMPO = 'ASSETS/Perks/Styles/Precision/LethalTempo/LethalTempo.lua'
 const HAIL_OF_BLADES = 'ASSETS/Perks/Styles/Domination/HailOfBlades/HailOfBladesBuff.lua'
@@ -23,23 +24,26 @@ class Orbwalker {
         this.canMoveTime = gametime;
     }
 
-    public async orbwalk(target?: GameObject) {
-        if(target && this.canAttackTime < this.game.getGameTime()) {
+    public async orbwalk(targetPosition?: Vector2) {
+        robotjs.mouseToggle('down', 'middle');
+        if(targetPosition && this.canAttackTime < this.game.getGameTime()) {
             const mousePosition = robotjs.getMousePos();
-            const targetPosition = this.sdk.renderer.worldToScreen(target.getPosition());
+            const attackSpeedCap = this.getAttackSpeedCap();
+            const windupTime = this.getWindupTime(attackSpeedCap);
+            const attackTime = this.getAttackTime(attackSpeedCap);
+
             robotjs.moveMouse(targetPosition.x, targetPosition.y);
             robotjs.mouseClick('right');
-            await new Promise((resolve)=> setTimeout(resolve, 10));
-            const attackSpeedCap = this.getAttackSpeedCap();
-            
+
             const gameTime = this.game.getGameTime();
-            this.canAttackTime = gameTime + this.getAttackTime(attackSpeedCap);
-            this.canMoveTime = gameTime + this.getWindupTime(attackSpeedCap);
+            this.canAttackTime = gameTime + attackTime;
+            this.canMoveTime = gameTime + windupTime;
             robotjs.moveMouse(mousePosition.x, mousePosition.y);
         } else if(this.canMoveTime < this.game.getGameTime()) {
             robotjs.mouseClick('right');
             this.canMoveTime = this.game.getGameTime() + 0.05;
         }
+        robotjs.mouseToggle('up', 'middle');
     }
 
     public getAttackTime(attackSpeedCap: number) {

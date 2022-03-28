@@ -44,7 +44,6 @@ class GameObject extends DDragonUnit {
 
     public getTeam(): number {
         const team = memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectTeam, memoryjs.INT);
-        console.log(team);
         return team;
     }
 

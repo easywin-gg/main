@@ -2,6 +2,7 @@ import CDN from "./cdn/CDN";
 import memoryjs from "memoryjs";
 import Core from "./core/Core";
 import SDK from "./core/sdk/SDK";
+import PluginManager from "./core/plugin/PluginManager";
 
 class Rank1 {
 
@@ -38,14 +39,26 @@ class Rank1 {
         const enemies = core.game.getEnemyHeroes();
         console.log('[RANK1] Enemies:', enemies.map(e => e.getName()));
 
-        if(enemies.length >= 1) {
-            // while(true) {
-            //     const target = sdk.targetSelector.getLowestTarget(enemies);
-            //     console.log('[RANK1] Target:', target.getName());
-    
-            //     sdk.orbwalker.orbwalk(target);
-            //     await new Promise((resolve)=> setTimeout(resolve, 10))
-            // }
+        const pluginManager = new PluginManager(sdk);
+        await pluginManager.load();
+
+        if (enemies.length >= 1) {
+            while (true) {
+                const position = player.getPosition();
+                const worldPosition = sdk.renderer.worldToScreen(position);
+                sdk.drawCircle({
+                    key: 'circleAA',
+                    startAngle: 0,
+                    endAngle: 0,
+                    antiClockwise: false,
+                    fill: false,
+                    position: worldPosition,
+                    radius: player.getAttackRange()*1.25,
+                    color: 'red',
+                })
+
+                await new Promise((resolve) => setTimeout(resolve, 1))
+            }
         }
 
         // console.log(`Welcome ${player.getName()}`);
@@ -61,7 +74,7 @@ class Rank1 {
         //     x: (sdk.renderer.width / 2) - 600,
         //     y: (sdk.renderer.height / 2) - 490
         // };
-        
+
         // console.log('[RANK1] Started');
 
         // while(true) {

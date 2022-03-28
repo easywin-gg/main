@@ -22,13 +22,10 @@ class TargetSelector {
     }
 
     public getLowestTarget(entities: GameObject[]) {
-        return entities.reduce((lowestTarget, target) => {
-            if (this.isValidTarget(target) && this.isInAutoAttackRange(target) && this.getBasicAttacksNeeded(target) < this.getBasicAttacksNeeded(lowestTarget)) {
-                return target;
-            }
-
-            return lowestTarget;
-        });
+        return entities
+            .filter((x)=> this.isInAutoAttackRange(x))
+            .filter((x)=> this.isValidTarget(x))
+            .sort((a, b)=> this.getBasicAttacksNeeded(a) - this.getBasicAttacksNeeded(b))?.[0];	
     }   
     
     public getBasicAttacksNeeded(target: GameObject) {
@@ -39,7 +36,9 @@ class TargetSelector {
     
     public isInAutoAttackRange(target: GameObject) {
         const targetRadius = target.getGameplayRadius() * target.getSizeMultiplier();
-        return (this.distanceBetween(target.getPosition()) - targetRadius) <= this.game.localPlayer.getAttackRange();
+        const localRadius = this.game.localPlayer.getGameplayRadius() * this.game.localPlayer.getSizeMultiplier();
+
+        return (this.distanceBetween(target.getPosition()) - targetRadius) <= this.game.localPlayer.getAttackRange() + localRadius;
     }
     
     public distanceBetween(position: Vector3) {

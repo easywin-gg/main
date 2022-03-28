@@ -105,6 +105,5 @@
   "exclude": [
     "node_modules",
     "@types",
-    "scripts"
   ]
 }

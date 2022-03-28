@@ -43,7 +43,9 @@ class GameObject extends DDragonUnit {
     }
 
     public getTeam(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectTeam, memoryjs.INT);
+        const team = memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectTeam, memoryjs.INT);
+        console.log(team);
+        return team;
     }
 
     public getLevel(): number {
@@ -56,6 +58,30 @@ class GameObject extends DDragonUnit {
 
     public getMaxHealth(): number {
         return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectMaxHealth, memoryjs.FLOAT);
+    }
+
+    public getArmor(): number {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectArmor, memoryjs.FLOAT);
+    }
+
+    public getBaseAttack(): number {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectBaseAtk, memoryjs.FLOAT);
+    }
+
+    public getBonusAttack(): number {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectBonusAtk, memoryjs.FLOAT);
+    }
+
+    public getSizeMultiplier(): number {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectSizeMultiplier, memoryjs.FLOAT);
+    }
+
+    public getAttackRange(): number {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectAttackRange, memoryjs.FLOAT);
+    }
+
+    public getAttackSpeedMultiplier(): number {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectAttackSpeedMultiplier, memoryjs.FLOAT);
     }
 
     public getSpawnCount(): number {
@@ -80,6 +106,10 @@ class GameObject extends DDragonUnit {
                 memoryjs.FLOAT
             )
         }
+    }
+
+    public isAlive(): boolean {
+        return this.getSpawnCount() % 2 == 0;
     }
 
     public isTargetable(): boolean {

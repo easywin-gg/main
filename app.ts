@@ -25,11 +25,28 @@ class Rank1 {
 
         const process = memoryjs.openProcess('League of Legends.exe');
         const module = memoryjs.findModule('League of Legends.exe', process.th32ProcessID);
+        console.log('[RANK1] Module found: ' + module.modBaseAddr);
 
         const core = new Core(process, module);
+        const sdk = new SDK(core);
+
+        console.log('[RANK1] SDK and Core initialized');
         const player = core.game.localPlayer;
 
-        console.log(player.getBaseAttackRange());
+        console.log('[RANK1] Local player:', player.getName());
+
+        const enemies = core.game.getEnemyHeroes();
+        console.log('[RANK1] Enemies:', enemies.map(e => e.getName()));
+
+        if(enemies.length >= 1) {
+            // while(true) {
+            //     const target = sdk.targetSelector.getLowestTarget(enemies);
+            //     console.log('[RANK1] Target:', target.getName());
+    
+            //     sdk.orbwalker.orbwalk(target);
+            //     await new Promise((resolve)=> setTimeout(resolve, 10))
+            // }
+        }
 
         // console.log(`Welcome ${player.getName()}`);
         // for (const [name, buff] of player.getBuffManager()) {

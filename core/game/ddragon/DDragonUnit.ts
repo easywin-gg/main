@@ -121,24 +121,29 @@ class DDragonUnit {
         ["Unit_Ward", UnitTag.Unit_Ward],
     ]);
  
-    private static readonly UNIT_DATA = JSON.parse(fs.readFileSync(`${process.env.APPDATA}/rank1/UnitData.json`, 'utf-8'));
+    private readonly UNIT_DATA: any[];
     private readonly objectName: string;
     private readonly unitData: any;
 
     public readonly tags: UnitTag[];
 
     constructor(
-        process: Process,
+        _process: Process,
         address: number
     ) {
-        const namePointer = memoryjs.readMemory(process.handle, address + Offsets.ObjectName, memoryjs.DWORD)
+        const namePointer = memoryjs.readMemory(_process.handle, address + Offsets.ObjectName, memoryjs.DWORD)
         this.objectName = memoryjs.readMemory(
-            process.handle,
+            _process.handle,
             namePointer,
             memoryjs.STRING
         );
 
-        this.unitData = DDragonUnit.UNIT_DATA.find((x: any) => x.name === this.objectName.toLowerCase());
+        this.UNIT_DATA = JSON.parse(fs.readFileSync(`${process.env.APPDATA}/rank1/UnitData.json`, 'utf-8'));
+        this.unitData = this.UNIT_DATA.find((x: any) => x.name === this.objectName.toLowerCase());
+
+        if(this.objectName === 'Jinx') {
+            console.log(this.unitData.tags);
+        }
         this.tags = this.unitData.tags.map((x: string) => DDragonUnit.unitTags.get(x));
     }
 
@@ -188,6 +193,14 @@ class DDragonUnit {
 
     getBasicAttackWindup(): number {
         return this.unitData.basicAtkWindup;
+    }
+
+    getPurchaseIdentities(): string[] {
+        return this.unitData.purchaseIdentities;
+    }
+    
+    public isMeele(): boolean {
+        return this.unitData.purchaseIdentities.includes("Meele");
     }
 
 }

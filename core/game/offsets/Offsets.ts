@@ -20,6 +20,14 @@ const GameObject = {
     
     ObjectHealth: 0xDB4,
     ObjectMaxHealth: 0xDC4,
+
+    ObjectArmor: 0x12E4,
+    ObjectArmorBonus: 0x4,
+
+    ObjectBaseAtk: 0x12BC,
+    ObjectBonusAtk: 0x1234,
+    ObjectAttackRange: 0x1304,
+    ObjectAttackSpeedMultiplier: 0x12B8,
     
     ObjectPosition: 0x1F4,  
     ObjectPositionY: 0x4,
@@ -31,7 +39,7 @@ const GameObject = {
     ObjectRecalling: 0xDA8,
 
     ObjectSpawnCount: 0x2A0,
-
+    ObjectSizeMultiplier: 0x12D4,
 
     ObjectSpellBook: 0x27e4,
     ObjectSpellBookArray: 0x488,

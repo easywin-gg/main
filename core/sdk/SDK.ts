@@ -3,6 +3,8 @@ import Game from "../game/Game";
 import GameRenderer, { Vector2 } from "../game/renderer/GameRenderer";
 import EventManager from "./event/EventManager";
 import fs from 'fs'
+import Orbwalker from "./orbwalker/Orbwalker";
+import TargetSelector from "./targetSelector/TargetSelector";
 
 type DrawCircleArguments = {
     key: string,
@@ -40,12 +42,18 @@ class SDK {
     public readonly renderer: GameRenderer;
     public readonly eventManager: EventManager;
 
+    public readonly targetSelector: TargetSelector;
+    public readonly orbwalker: Orbwalker;
+
     constructor(
         private readonly core: Core
     ) {
         this.game = core.game;
         this.renderer = new GameRenderer(this.core);
         this.eventManager = new EventManager();
+
+        this.targetSelector = new TargetSelector(this);
+        this.orbwalker = new Orbwalker(this);
     }
 
     drawCircle(args: DrawCircleArguments) {

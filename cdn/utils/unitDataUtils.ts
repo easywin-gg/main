@@ -68,12 +68,13 @@ const transformUnitDataToJson = async () => {
         }
 
         const tags = [];
-        for (const tag of 
-            root['unitTagsString']?.includes('|') ?
-                root['unitTagsString'].split('|') : 
-                root['unitTagsString']
-        ) {
-            tags.push(`Unit_${tag.trim().replace('=', '_')}`);
+
+        if(root['unitTagsString']?.includes('|')) {
+            for (const tag of root['unitTagsString'].split('|')) {
+                tags.push(`Unit_${tag.trim().replace('=', '_')}`);
+            }
+        } else {
+            tags.push(`Unit_${root['unitTagsString']}`);
         }
 
         const unit = {
@@ -87,6 +88,7 @@ const transformUnitDataToJson = async () => {
             selectionRadius: root['selectionRadius'] || 0,
             pathingRadius: root['pathfindingCollisionRadius'] || 0,
             gameplayRadius: root['overrideGameplayCollisionRadius'] || 65,
+            purchaseIdentities: root['purchaseIdentities'] || [],
             basicAtkMissileSpeed: missile_speed,
             basicAtkWindup: windup,
             tags: tags

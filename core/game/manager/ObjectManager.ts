@@ -22,10 +22,10 @@ class ObjectManager {
     constructor(
         private readonly core: Core
     ) {
-
+        this.read();
     }
     
-    read() {
+    public read() {
         const objectManager = memoryjs.readMemory(
             this.core.process.handle,
             this.core.module.modBaseAddr + Offsets.ObjectManager,
@@ -77,6 +77,10 @@ class ObjectManager {
                 const object = new GameObject(this.core, pointer, UnitType.OTHERS);
                 const name = object.getName();
                 if (name.length <= 2 || !/^[ -~\t\n\r]+$/.test(name)) return;
+
+                if(name === 'Jinx') {
+                    console.log(`[ObjectManager] Found object: ${name} with tags`, object.tags);
+                }
 
                 if (object.tags.includes(UnitTag.Unit_Champion)) {
                     this.pushObjectInCache(UnitType.CHAMPIONS, object);

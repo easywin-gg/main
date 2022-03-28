@@ -19,17 +19,16 @@ class Game {
         ); 
 
         this.objectManager = new ObjectManager(this.core);
-        this.objectManager.read();
-
         this.localPlayer = new GameObject(this.core, localPlayer, UnitType.CHAMPIONS);
     }
 
-    getGameTime(): number {
+    public getGameTime(): number {
         return memoryjs.readMemory(this.core.process.handle, this.core.module.modBaseAddr + Offsets.GameTime, memoryjs.FLOAT);;
     }
 
-    getEnemyHeroes(): GameObject[] {
+    public getEnemyHeroes(): GameObject[] {
         const heroes = this.objectManager.objects.get(UnitType.CHAMPIONS) || [];    
+        console.log(heroes);
         return heroes.filter(o => o.getTeam() !== this.localPlayer.getTeam());
     }
 }

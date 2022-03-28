@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "axios": "^0.26.1",
-    "electron": "^17.1.2",
+    "electron": "16.1.0",
     "electron-overlay-window": "^2.0.1",
     "memoryjs": "^3.4.0",
     "robotjs": "^0.6.0"

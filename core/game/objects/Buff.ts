@@ -38,7 +38,7 @@ class Buff {
                 memoryjs.INT
             );
 
-            try {
+            try { 
                 const buff = new Buff(core, buffAddress);
                 buffs.set(buff.name, buff);
             } catch {};

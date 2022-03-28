@@ -11,15 +11,27 @@ const GameClient = {
 }
 
 const GameObject = {
+    ObjectNetworkID: 0xCC,
     ObjectName: 0x2BE4,
     ObjectPlayerName: 0x6C,
-
+    
+    ObjectTeam: 0x4C,
+    ObjectLevel: 0x339C,
+    
     ObjectHealth: 0xDB4,
     ObjectMaxHealth: 0xDC4,
-
-    ObjectPosition: 0x1F4, 
+    
+    ObjectPosition: 0x1F4,  
     ObjectPositionY: 0x4,
     ObjectPositionZ: 0x8,
+    
+    ObjectTargetable: 0xD1C,
+    ObjectVisibility: 0x28C,
+    ObjectInvulnerable: 0x3EC,
+    ObjectRecalling: 0xDA8,
+
+    ObjectSpawnCount: 0x2A0,
+
 
     ObjectSpellBook: 0x27e4,
     ObjectSpellBookArray: 0x488,

@@ -4,6 +4,7 @@ import CDN from '../CDN';
 
 const UNIT_DATA_FILES_FOLDER = `${process.env.APPDATA}/rank1/data/units`;
 
+// TODO: Refactor this
 const downloadUnitData = async (units: any[]) => {
     if (!fs.existsSync(UNIT_DATA_FILES_FOLDER)) {
         fs.mkdirSync(UNIT_DATA_FILES_FOLDER);

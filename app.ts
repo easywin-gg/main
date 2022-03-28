@@ -30,7 +30,6 @@ class Rank1 {
         const player = core.game.localPlayer;
 
         console.log(player.getBaseAttackRange());
-        core.game.updateObjectCache();
 
         // console.log(`Welcome ${player.getName()}`);
         // for (const [name, buff] of player.getBuffManager()) {

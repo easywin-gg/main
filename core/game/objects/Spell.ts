@@ -16,7 +16,7 @@ class Spell {
             this.core.process.handle,
             address,
             Offsets.SpellSlotSize
-        );
+        ); 
 
         this.level = Core.readIntegerFromBuffer(data, Offsets.SpellSlotLevel);
         this.expiresAt = Core.readFloatFromBuffer(data, Offsets.SpellSlotCooldownExpire);

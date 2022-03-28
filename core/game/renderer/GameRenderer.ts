@@ -67,7 +67,7 @@ class GameRenderer {
             z: position.x * viewProjMatrix[2] + position.y * viewProjMatrix[6] + position.z * viewProjMatrix[10] + viewProjMatrix[14],
             w: position.x * viewProjMatrix[3] + position.y * viewProjMatrix[7] + position.z * viewProjMatrix[11] + viewProjMatrix[15]
         };
-
+ 
         if (clipCoords.w < 1.0) clipCoords.w = 1.;
 
         const vec2: Vector2 = {

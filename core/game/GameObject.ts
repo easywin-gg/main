@@ -2,9 +2,10 @@ import memoryjs from 'memoryjs';
 import Core from '../Core';
 import { Vector3 } from './renderer/GameRenderer';
 import Buff from './objects/Buff';
-import Spell from './objects/Spell'; 
+import Spell from './objects/Spell';
 import Offsets from './offsets/Offsets';
 import DDragonUnit from './ddragon/DDragonUnit';
+import { UnitType } from './manager/ObjectManager';
 
 export enum SpellSlot {
     Q = 'Q',
@@ -12,20 +13,41 @@ export enum SpellSlot {
     E = 'E',
     R = 'R',
     D = 'D',
-    F = 'F' 
+    F = 'F'
 }
 
 class GameObject extends DDragonUnit {
 
+    private readonly networkId: number;
+
     constructor(
         protected readonly core: Core,
-        protected readonly address: number
+        protected readonly address: number,
+        public type: UnitType
     ) {
-        super(core.process, address); 
+        super(core.process, address);
+
+        this.networkId = memoryjs.readMemory(
+            this.core.process.handle,
+            this.address + Offsets.ObjectNetworkID,
+            memoryjs.INT
+        );
+    }
+
+    public getNetworkId(): number {
+        return this.networkId;
     }
 
     public getPlayerName(): string {
         return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectPlayerName, memoryjs.STRING);
+    }
+
+    public getTeam(): number {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectTeam, memoryjs.INT);
+    }
+
+    public getLevel(): number {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectLevel, memoryjs.INT);
     }
 
     public getHealth(): number {
@@ -34,6 +56,10 @@ class GameObject extends DDragonUnit {
 
     public getMaxHealth(): number {
         return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectMaxHealth, memoryjs.FLOAT);
+    }
+
+    public getSpawnCount(): number {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectSpawnCount, memoryjs.INT);
     }
 
     public getPosition(): Vector3 {
@@ -56,6 +82,22 @@ class GameObject extends DDragonUnit {
         }
     }
 
+    public isTargetable(): boolean {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectTargetable, memoryjs.BOOLEAN)
+    }
+
+    public isVisible(): boolean {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectVisibility, memoryjs.BOOLEAN);
+    }
+
+    public isInvulnerable(): boolean {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectInvulnerable, memoryjs.BOOLEAN);
+    }
+
+    public isRecalling(): boolean {
+        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectRecalling, memoryjs.BOOLEAN);
+    }
+
     public getBuffManager(): Map<string, Buff> {
         const buffEntryStart = memoryjs.readMemory(
             this.core.process.handle,
@@ -69,7 +111,7 @@ class GameObject extends DDragonUnit {
             memoryjs.INT
         );
 
-        if(buffEntryStart <= 0 || buffEntryEnd <= 0) new Map();
+        if (buffEntryStart <= 0 || buffEntryEnd <= 0) new Map();
         return Buff.loadBuffManager(this.core, buffEntryStart, buffEntryEnd);
     }
 
@@ -78,7 +120,7 @@ class GameObject extends DDragonUnit {
             this.core.process.handle,
             this.address + Offsets.ObjectSpellBook,
             memoryjs.INT
-        );  
+        );
 
         if (spellBook <= 0) return new Map();
         return Spell.loadSpellBook(this.core, spellBook);

@@ -48,7 +48,6 @@ class SDK {
         this.eventManager = new EventManager();
     }
 
-
     drawCircle(args: DrawCircleArguments) {
         const draw = JSON.parse(fs.readFileSync(`${Core.MAIN_FOLDER_PATH}/draw/draw.json`, 'utf-8'));
         draw['arcs'][args.key] = args;

@@ -1,160 +1,60 @@
-import memoryjs from 'memoryjs';
-import Core from '../Core';
-import { Vector3 } from './renderer/GameRenderer';
-import Buff from './objects/Buff';
-import Spell from './objects/Spell';
 import Offsets from './offsets/Offsets';
-import DDragonUnit from './ddragon/DDragonUnit';
-import { UnitType } from './manager/ObjectManager';
-
-export enum SpellSlot {
-    Q = 'Q',
-    W = 'W',
-    E = 'E',
-    R = 'R',
-    D = 'D',
-    F = 'F'
-}
+import DDragonUnit, { UnitTag } from '../ddragon/DDragonUnit';
+import Memory from '../memory/Memory';
+import { Vector3 } from '../renderer/GameRenderer';
+import { UnitType } from '../manager/ObjectManager';
 
 class GameObject extends DDragonUnit {
 
-    private readonly networkId: number;
+    public id!: number;
+    public networkId!: number;
+    public team!: number;
+    public position!: Vector3;
+    public health!: number;
+    public maxHealth!: number;
+    public type!: UnitType;
 
     constructor(
-        protected readonly core: Core,
-        protected readonly address: number,
-        public type: UnitType
+        private readonly baseAddress: number
     ) {
-        super(core.process, address);
-
-        this.networkId = memoryjs.readMemory(
-            this.core.process.handle,
-            this.address + Offsets.ObjectNetworkID,
-            memoryjs.INT
-        );
+        super(baseAddress);
     }
 
-    public getNetworkId(): number {
-        return this.networkId;
+    public loadFromMemory(deepLoad = true, buffSize = 0x3600) {
+        const data = Memory.readBuffer(this.baseAddress, buffSize);
+
+        this.id = Memory.readIntegerFromBuffer(data, Offsets.ObjectArmor);
+        this.team = Memory.readIntegerFromBuffer(data, Offsets.ObjectTeam);
+        this.networkId = Memory.readIntegerFromBuffer(data, Offsets.ObjectNetworkID);
+        this.position = {
+            x: Memory.readFloatFromBuffer(data, Offsets.ObjectPosition),
+            y: Memory.readFloatFromBuffer(data, Offsets.ObjectPosition + 4),
+            z: Memory.readFloatFromBuffer(data, Offsets.ObjectPosition + 8)
+        };
+        this.health = Memory.readFloatFromBuffer(data, Offsets.ObjectHealth);
+        this.maxHealth = Memory.readFloatFromBuffer(data, Offsets.ObjectMaxHealth);
+        this.type = this.getUnitType();
     }
 
-    public getPlayerName(): string {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectPlayerName, memoryjs.STRING);
-    }
-
-    public getTeam(): number {
-        const team = memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectTeam, memoryjs.INT);
-        return team;
-    }
-
-    public getLevel(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectLevel, memoryjs.INT);
-    }
-
-    public getHealth(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectHealth, memoryjs.FLOAT);
-    }
-
-    public getMaxHealth(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectMaxHealth, memoryjs.FLOAT);
-    }
-
-    public getArmor(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectArmor, memoryjs.FLOAT);
-    }
-
-    public getBaseAttack(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectBaseAtk, memoryjs.FLOAT);
-    }
-
-    public getBonusAttack(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectBonusAtk, memoryjs.FLOAT);
-    }
-
-    public getSizeMultiplier(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectSizeMultiplier, memoryjs.FLOAT);
-    }
-
-    public getAttackRange(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectAttackRange, memoryjs.FLOAT);
-    }
-
-    public getAttackSpeedMultiplier(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectAttackSpeedMultiplier, memoryjs.FLOAT);
-    }
-
-    public getSpawnCount(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectSpawnCount, memoryjs.INT);
-    }
-
-    public getPosition(): Vector3 {
-        return {
-            x: memoryjs.readMemory(
-                this.core.process.handle,
-                this.address + Offsets.ObjectPosition,
-                memoryjs.FLOAT
-            ),
-            y: memoryjs.readMemory(
-                this.core.process.handle,
-                this.address + Offsets.ObjectPosition + Offsets.ObjectPositionY,
-                memoryjs.FLOAT
-            ),
-            z: memoryjs.readMemory(
-                this.core.process.handle,
-                this.address + Offsets.ObjectPosition + Offsets.ObjectPositionZ,
-                memoryjs.FLOAT
-            )
+    private getUnitType() {
+        if (this.tags.includes(UnitTag.Unit_Champion)) {
+            return UnitType.CHAMPION;
         }
+
+        if (this.tags.includes(UnitTag.Unit_Minion_Lane)) {
+            return UnitType.MINION;
+        }
+
+        if (this.tags.includes(UnitTag.Unit_Monster)) {
+            return UnitType.JUNGLE;
+        }
+
+        if (this.tags.includes(UnitTag.Unit_Structure_Turret)) {
+            return UnitType.TURRET;
+        }
+
+        return UnitType.OTHER;
     }
-
-    public isAlive(): boolean {
-        return this.getSpawnCount() % 2 == 0;
-    }
-
-    public isTargetable(): boolean {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectTargetable, memoryjs.BOOLEAN)
-    }
-
-    public isVisible(): boolean {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectVisibility, memoryjs.BOOLEAN);
-    }
-
-    public isInvulnerable(): boolean {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectInvulnerable, memoryjs.BOOLEAN);
-    }
-
-    public isRecalling(): boolean {
-        return memoryjs.readMemory(this.core.process.handle, this.address + Offsets.ObjectRecalling, memoryjs.BOOLEAN);
-    }
-
-    public getBuffManager(): Map<string, Buff> {
-        const buffEntryStart = memoryjs.readMemory(
-            this.core.process.handle,
-            this.address + Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesStart,
-            memoryjs.INT
-        );
-
-        const buffEntryEnd = memoryjs.readMemory(
-            this.core.process.handle,
-            this.address + Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesEnd,
-            memoryjs.INT
-        );
-
-        if (buffEntryStart <= 0 || buffEntryEnd <= 0) new Map();
-        return Buff.loadBuffManager(this.core, buffEntryStart, buffEntryEnd);
-    }
-
-    public getSpellBook(): Map<SpellSlot, Spell> {
-        const spellBook = memoryjs.readMemory(
-            this.core.process.handle,
-            this.address + Offsets.ObjectSpellBook,
-            memoryjs.INT
-        );
-
-        if (spellBook <= 0) return new Map();
-        return Spell.loadSpellBook(this.core, spellBook);
-    }
-
 }
 
 export default GameObject;

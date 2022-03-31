@@ -1,44 +1,46 @@
-import Core from "../../Core";
-import memoryjs from 'memoryjs';
 import Offsets from "../offsets/Offsets";
-import { SpellSlot } from "../GameObject";
+import Memory from "../../memory/Memory";
 
-class Spell { 
+export enum SpellSlot {
+    Q = 'Q',
+    W = 'W',
+    E = 'E',
+    R = 'R',
+    D = 'D',
+    F = 'F'
+}
+
+class Spell {
 
     public level: number;
     public expiresAt: number;
 
-    constructor(
-        protected readonly core: Core,
-        protected readonly address: number
-    ) {
-        const data = memoryjs.readBuffer(
-            this.core.process.handle,
+    constructor(protected readonly address: number) {
+        const data = Memory.readBuffer(
             address,
             Offsets.SpellSlotSize
-        ); 
+        );
 
-        this.level = Core.readIntegerFromBuffer(data, Offsets.SpellSlotLevel);
-        this.expiresAt = Core.readFloatFromBuffer(data, Offsets.SpellSlotCooldownExpire);
+        this.level = Memory.readIntegerFromBuffer(data, Offsets.SpellSlotLevel);
+        this.expiresAt = Memory.readFloatFromBuffer(data, Offsets.SpellSlotCooldownExpire);
     }
 
-    public static loadSpellBook(core: Core, spellBookAddress: number): Map<SpellSlot, Spell> {
+    public static loadSpellBook(spellBookAddress: number): Map<SpellSlot, Spell> {
         const spells = new Map<SpellSlot, Spell>();
 
-        const spellBookArray = memoryjs.readBuffer(
-            core.process.handle,
+        const spellBookArray = Memory.readBuffer(
             spellBookAddress + Offsets.ObjectSpellBookArray,
             Object.keys(SpellSlot).length * 4
         );
 
         for (var i = 0; i < Object.keys(SpellSlot).length; i++) {
-            const spellAddress = Core.readIntegerFromBuffer(spellBookArray, i * 4);
+            const spellAddress = Memory.readIntegerFromBuffer(spellBookArray, i * 4);
 
             try {
                 const slot = Object.values(SpellSlot)[i] as SpellSlot;
-                const spell = new Spell(core, spellAddress);
+                const spell = new Spell(spellAddress);
                 spells.set(slot, spell);
-            } catch {}
+            } catch { }
         }
 
         return spells;

@@ -1,23 +1,20 @@
 const GameClient = {
-    ObjectManager: 0x1879830,
-    LocalPlayer: 0x31168D4,
-    UnderMouseObject: 0x310A9D8,
-    Renderer: 0x3143DE0,
-    ViewProjMatrices: 0x3140F40, 
-    ViewMatrix: 0x3143E38,
-    ProjMatrix: 0x3143E78,
-    oRendererWidth: 0x0,
-    oRendererHeight: 0x4
+    GameTime: 0x310DF84,
+    ObjectManager: 0x24B9BB0,
+    LocalPlayer: 0x310B314,
+    UnderMouseObject: 0x30FED10,
+    ViewProjMatrices: 0x3135818,
+    Renderer: 0x3138718,
 }
 
 const GameObject = {
     ObjectNetworkID: 0xCC,
     ObjectName: 0x2BE4,
     ObjectPlayerName: 0x6C,
-    
+
     ObjectTeam: 0x4C,
     ObjectLevel: 0x339C,
-    
+
     ObjectHealth: 0xDB4,
     ObjectMaxHealth: 0xDC4,
 
@@ -28,11 +25,9 @@ const GameObject = {
     ObjectBonusAtk: 0x1234,
     ObjectAttackRange: 0x1304,
     ObjectAttackSpeedMultiplier: 0x12B8,
-    
-    ObjectPosition: 0x1F4,  
-    ObjectPositionY: 0x4,
-    ObjectPositionZ: 0x8,
-    
+
+    ObjectPosition: 0x1F4,
+
     ObjectTargetable: 0xD1C,
     ObjectVisibility: 0x28C,
     ObjectInvulnerable: 0x3EC,
@@ -69,7 +64,6 @@ const SpellSlot = {
 }
 
 export default {
-    GameTime: 0x310DF84,
     ...GameClient,
     ...GameObject,
     ...SpellSlot,

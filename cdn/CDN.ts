@@ -80,6 +80,7 @@ class CDN {
             triangles: {},
             squares: {},
             lines: {},
+            circle_world: {}
         }));
 
         console.log(`[CDN] Draw files initialized`);

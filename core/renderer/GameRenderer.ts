@@ -1,5 +1,6 @@
 import memoryjs from 'memoryjs';
 import Core from "../../Core";
+import Memory from '../../memory/Memory';
 import Offsets from "../offsets/Offsets";
 
 export type Vector2 = {
@@ -26,9 +27,7 @@ class GameRenderer {
     public width;
     public height;
 
-    constructor(
-        private readonly core: Core
-    ) {
+    constructor() {
         // const data = memoryjs.readBuffer(
         //     this.core.process.handle,
         //     this.core.module.modBaseAddr + Offsets.Renderer,
@@ -43,20 +42,19 @@ class GameRenderer {
     }
 
     worldToScreen(position: Vector3): Vector2 {
-        const data = memoryjs.readBuffer(
-            this.core.process.handle,
-            this.core.module.modBaseAddr + Offsets.ViewProjMatrices,
+        const data = Memory.readBuffer(
+            Memory.module.modBaseAddr + Offsets.ViewProjMatrices,
             128
         );
 
         const viewMatrix: number[] = [];
         const projMatrix: number[] = [];
         for (var i = 0; i < 16; i++) {
-            viewMatrix.push(Core.readFloatFromBuffer(data, i * 4));
+            viewMatrix.push(Memory.readFloatFromBuffer(data, i * 4));
         }
 
         for (var i = 0; i < 16; i++) {
-            projMatrix.push(Core.readFloatFromBuffer(data, 64 + (i * 4)));
+            projMatrix.push(Memory.readFloatFromBuffer(data, 64 + (i * 4)));
         }
 
         const viewProjMatrix = this.multiplyMatrices(viewMatrix, projMatrix);
@@ -67,7 +65,7 @@ class GameRenderer {
             z: position.x * viewProjMatrix[2] + position.y * viewProjMatrix[6] + position.z * viewProjMatrix[10] + viewProjMatrix[14],
             w: position.x * viewProjMatrix[3] + position.y * viewProjMatrix[7] + position.z * viewProjMatrix[11] + viewProjMatrix[15]
         };
- 
+
         if (clipCoords.w < 1.0) clipCoords.w = 1.;
 
         const vec2: Vector2 = {

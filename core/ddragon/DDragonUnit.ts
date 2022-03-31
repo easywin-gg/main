@@ -1,6 +1,7 @@
 import fs from 'fs';
 import memoryjs, { Process, Module } from 'memoryjs';
-import Offsets from '../offsets/Offsets';
+import Memory from '../memory/Memory';
+import Offsets from '../game/offsets/Offsets';
 
 export enum UnitTag {
     Unit_ = 1,
@@ -51,7 +52,7 @@ export enum UnitTag {
     Unit_Structure = 46,
     Unit_Structure_Inhibitor = 47,
     Unit_Structure_Nexus = 48,
-    Unit_Structure_Turret = 49, 
+    Unit_Structure_Turret = 49,
     Unit_Structure_Turret_Inhib = 50,
     Unit_Structure_Turret_Inner = 51,
     Unit_Structure_Turret_Nexus = 52,
@@ -59,6 +60,8 @@ export enum UnitTag {
     Unit_Structure_Turret_Shrine = 54,
     Unit_Ward = 55,
 };
+
+const UNIT_DATA = JSON.parse(fs.readFileSync(`${process.env.APPDATA}/rank1/UnitData.json`, 'utf-8'));
 
 // thanks lview
 class DDragonUnit {
@@ -120,89 +123,54 @@ class DDragonUnit {
         ["Unit_Structure_Turret_Shrine", UnitTag.Unit_Structure_Turret_Shrine],
         ["Unit_Ward", UnitTag.Unit_Ward],
     ]);
- 
-    private readonly UNIT_DATA: any[];
-    private readonly objectName: string;
-    private readonly unitData: any;
 
-    public readonly tags: UnitTag[];
+    private readonly data: any;
+
+    public readonly name: string;
+    public readonly healthBarHeight!: number;
+    public readonly baseMoveSpeed!: number;
+    public readonly baseAttackRange!: number;
+    public readonly baseAttackSpeed!: number;
+    public readonly attackSpeedRatio!: number;
+    public readonly acquisitionRange!: number;
+    public readonly selectionRadius!: number;
+    public readonly pathingRadius!: number;
+    public readonly gameplayRadius!: number;
+    public readonly basicAtkMissileSpeed!: number;
+    public readonly basicAtkWindup!: number;
+    public readonly purchaseIdentities!: string[];
+    public readonly tags: UnitTag[] = [];
 
     constructor(
-        _process: Process,
         address: number
     ) {
-        const namePointer = memoryjs.readMemory(_process.handle, address + Offsets.ObjectName, memoryjs.DWORD)
-        this.objectName = memoryjs.readMemory(
-            _process.handle,
-            namePointer,
+        this.name = Memory.readMemory(
+            Memory.readMemory(address + Offsets.ObjectName, memoryjs.DWORD),
             memoryjs.STRING
         );
 
-        this.UNIT_DATA = JSON.parse(fs.readFileSync(`${process.env.APPDATA}/rank1/UnitData.json`, 'utf-8'));
-        this.unitData = this.UNIT_DATA.find((x: any) => x.name === this.objectName.toLowerCase());
+        this.data = UNIT_DATA.find((x: any) => x.name === this.name.toLowerCase());
 
-        if(this.objectName === 'Jinx') {
-            console.log(this.unitData.tags);
+        if (this.data) {
+            this.healthBarHeight = this.data.healthBarHeight;
+            this.baseMoveSpeed = this.data.baseMoveSpeed;
+            this.baseAttackRange = this.data.baseAttackRange;
+            this.baseAttackSpeed = this.data.baseAttackSpeed;
+            this.attackSpeedRatio = this.data.attackSpeedRatio;
+            this.acquisitionRange = this.data.acquisitionRange;
+            this.selectionRadius = this.data.selectionRadius;
+            this.pathingRadius = this.data.pathingRadius;
+            this.gameplayRadius = this.data.gameplayRadius;
+            this.basicAtkMissileSpeed = this.data.basicAtkMissileSpeed;
+            this.basicAtkWindup = this.data.basicAtkWindup;
+            this.purchaseIdentities = this.data.purchaseIdentities;
+            this.tags = this.data.tags.map((x: string) => DDragonUnit.unitTags.get(x));
         }
-        this.tags = this.unitData.tags.map((x: string) => DDragonUnit.unitTags.get(x));
     }
 
-    getName(): string {
-        return this.objectName;
-    }
-
-    getHealthBarHeight(): number {
-        return this.unitData.healthBarHeight;
-    }
-
-    getBaseMoveSpeed(): number {
-        return this.unitData.baseMoveSpeed;
-    }
-
-    getBaseAttackRange(): number {
-        return this.unitData.attackRange;
-    }
-
-    getBaseAttackSpeed(): number {
-        return this.unitData.attackSpeed;
-    }
-
-    getAttackSpeedRatio(): number {
-        return this.unitData.attackSpeedRatio;
-    }
-
-    getAcquisitionRange(): number {
-        return this.unitData.acquisitionRange;
-    }
-
-    getSelectionRadius(): number {
-        return this.unitData.selectionRadius;
-    }
-
-    getPathingRadius(): number {
-        return this.unitData.pathingRadius;
-    }
-
-    getGameplayRadius(): number {
-        return this.unitData.gameplayRadius;
-    }
-
-    getBasicAttackMissileSpeed(): number {
-        return this.unitData.basicAtkMissileSpeed;
-    }
-
-    getBasicAttackWindup(): number {
-        return this.unitData.basicAtkWindup;
-    }
-
-    getPurchaseIdentities(): string[] {
-        return this.unitData.purchaseIdentities;
-    }
-    
     public isMeele(): boolean {
-        return this.unitData.purchaseIdentities.includes("Meele");
+        return this.data.purchaseIdentities.includes("Meele");
     }
-
 }
 
 export default DDragonUnit;

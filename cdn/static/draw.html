@@ -2,10 +2,12 @@
 </head>
 
 <body style="padding: 0; margin: 0; overflow: hidden;">
-    <div class="wrapper">
+
+    <canvas id="overlay" style="width: 1920px; height: 1080px;"></canvas>
+    <!-- <div class="wrapper">
         <h1 class="credits">Script by Nospher & Cookie</h1>
         <div id="aa-circle"></div>
-    </div>
+    </div> -->
 
     <style>
         .wrapper {
@@ -25,7 +27,10 @@
     <script>
         const electron = require('electron');
         const fs = require('fs');
-        const circleAA = document.getElementById('aa-circle');
+        // const circleAA = document.getElementById('aa-circle');
+
+        const canvas = document.getElementById('overlay');
+        const context = canvas.getContext('2d');
 
         const drawCircleAA = (path) => {
             try {
@@ -47,9 +52,9 @@
 
         const draw = (path) => {
             try {
+                const draws = JSON.parse(fs.readFileSync(`${path}/draw/draw.json`, 'utf-8'));
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 for (const { position, radius, startAngle, endAngle, antiClockwise, color, fill } of Object.values(draws['arcs'])) {
-                    console.log('draw');
                     context.beginPath();
                     context.arc(position.x, position.y, radius, startAngle, endAngle, antiClockwise);
                     if (fill) {
@@ -113,16 +118,12 @@
                     }
                 }
 
-                for (const { position, width, height, color, fill } of Object.values(draws['lines'])) {
-                    context.beginPath();
-                    context.moveTo(position.x, position.y);
-                    context.lineTo(position.x + width, position.y + height);
-
-                    if (fill) {
-                        context.fillStyle = color;
-                        context.fill();
-                    } else {
-                        context.strokeStyle = color;
+                for (const { width, height, color, lines } of Object.values(draws['circle_world'])) {
+                    for(const line of lines) {
+                        context.beginPath();
+                        context.moveTo(line.x, line.y);
+                        context.lineTo(line.x+10, line.y+10);
+                        context.strokeStyle = 'color';
                         context.stroke();
                     }
                 }
@@ -146,7 +147,7 @@
         }
 
         electron.ipcRenderer.on('draw', (event, path) => {
-            setInterval(() => drawCircleAA(path), 1);
+            setInterval(() => draw(path), 1);
         });
 
     </script>

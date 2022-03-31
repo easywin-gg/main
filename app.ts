@@ -1,8 +1,8 @@
 import CDN from "./cdn/CDN";
 import memoryjs from "memoryjs";
 import Core from "./core/Core";
-import SDK from "./core/sdk/SDK";
 import PluginManager from "./core/plugin/PluginManager";
+import ObjectManager from "./core/manager/ObjectManager";
 
 class Rank1 {
 
@@ -29,37 +29,33 @@ class Rank1 {
         console.log('[RANK1] Module found: ' + module.modBaseAddr);
 
         const core = new Core(process, module);
-        const sdk = new SDK(core);
 
         console.log('[RANK1] SDK and Core initialized');
-        const player = core.game.localPlayer;
+        const player = core.game.getLocalPlayer();
+        console.log('[RANK1] Local player:', player.name);
 
-        console.log('[RANK1] Local player:', player.getName());
+        const manager = new ObjectManager();
+        manager.readObjectsFromMemory(core.game);
 
         const enemies = core.game.getEnemyHeroes();
-        console.log('[RANK1] Enemies:', enemies.map(e => e.getName()));
+        console.log('[RANK1] Enemies:', enemies.map(e => `${e.name} > ${e.health}`));
 
-        const pluginManager = new PluginManager(sdk);
-        await pluginManager.load();
+        // const pluginManager = new PluginManager(sdk);
+        // await pluginManager.load();
+        // const position = player.getPosition();
+        // sdk.drawCircleWorld({
+        //     key: 'circleAA',
+        //     position: position,
+        //     radius: player.getAttackRange() * 1.25,
+        //     color: 'red',
+        // })
 
-        if (enemies.length >= 1) {
-            while (true) {
-                const position = player.getPosition();
-                const worldPosition = sdk.renderer.worldToScreen(position);
-                sdk.drawCircle({
-                    key: 'circleAA',
-                    startAngle: 0,
-                    endAngle: 0,
-                    antiClockwise: false,
-                    fill: false,
-                    position: worldPosition,
-                    radius: player.getAttackRange()*1.25,
-                    color: 'red',
-                })
+        // if (enemies.length >= 1) {
+        //     while (true) {
 
-                await new Promise((resolve) => setTimeout(resolve, 1))
-            }
-        }
+        //         await new Promise((resolve) => setTimeout(resolve, 1))
+        //     }
+        // }
 
         // console.log(`Welcome ${player.getName()}`);
         // for (const [name, buff] of player.getBuffManager()) {

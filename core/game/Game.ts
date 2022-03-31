@@ -2,33 +2,47 @@ import Core from "../Core";
 import memoryjs from 'memoryjs';
 import Offsets from "./offsets/Offsets";
 import GameObject from "./GameObject";
-import ObjectManager, { UnitType } from "./manager/ObjectManager";
+import Memory from "../memory/Memory";
 
 class Game {
 
-    public readonly objectManager: ObjectManager;
-    public localPlayer: GameObject
+    private readonly localPlayer: GameObject;
 
-    constructor(
-        private readonly core: Core
-    ) {
-        const localPlayer = memoryjs.readMemory(
-            this.core.process.handle,
-            this.core.module.modBaseAddr + Offsets.LocalPlayer,
-            memoryjs.INT
-        ); 
+    public objects = new Map<number, GameObject>();
+    public champions = new Set<GameObject>();
+    public updatedThisFrame = new Set<number>();
 
-        this.objectManager = new ObjectManager(this.core);
-        this.localPlayer = new GameObject(this.core, localPlayer, UnitType.CHAMPIONS);
+    constructor() {
+        this.localPlayer = new GameObject(
+            Memory.readMemory(Memory.module.modBaseAddr + Offsets.LocalPlayer, memoryjs.INT)
+        );
     }
 
     public getGameTime(): number {
-        return memoryjs.readMemory(this.core.process.handle, this.core.module.modBaseAddr + Offsets.GameTime, memoryjs.FLOAT);;
+        return Memory.readMemory(Memory.module.modBaseAddr + Offsets.GameTime, memoryjs.FLOAT);;
+    }
+
+    public getLocalPlayer(): GameObject {
+        this.localPlayer.loadFromMemory();
+        return this.localPlayer;
+    }
+
+    public getHeroes(): GameObject[] {
+        return Array.from(this.champions.values());
+    }
+
+    public getAllyHeroes(): GameObject[] {
+        const heroes = this.getHeroes();
+        const team = this.getLocalPlayer().team;
+
+        return heroes.filter(o => o.team === team);
     }
 
     public getEnemyHeroes(): GameObject[] {
-        const heroes = this.objectManager.objects.get(UnitType.CHAMPIONS) || [];    
-        return heroes.filter(o => o.getTeam() !== this.localPlayer.getTeam());
+        const heroes = this.getHeroes();
+        const team = this.getLocalPlayer().team;
+
+        return heroes.filter(o => o.team !== team);
     }
 }
 

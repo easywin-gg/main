@@ -1,13 +1,26 @@
-import Offsets from './offsets/Offsets';
-import DDragonUnit, { UnitTag } from '../ddragon/DDragonUnit';
-import Memory from '../memory/Memory';
-import { Vector3 } from '../renderer/GameRenderer';
-import { UnitType } from '../manager/ObjectManager';
-import Buff from './objects/Buff';
-import memoryjs from 'memoryjs';
-import Spell, { SpellSlot } from './objects/Spell';
+import Offsets from "./offsets/Offsets";
+import DDragonUnit, { UnitTag } from "../ddragon/DDragonUnit";
+import Memory from "../memory/Memory";
+import { Vector3 } from "../renderer/GameRenderer";
+import { UnitType } from "../manager/ObjectManager";
+import Buff from "./objects/Buff";
+import memoryjs from "memoryjs";
+import Spell, { SpellSlot } from "./objects/Spell";
+
+export type RecallInfo = {
+    displayName: string;
+    duration: number;
+}
 
 class GameObject extends DDragonUnit {
+
+    public static recallStateType = new Map<number, RecallInfo>([
+        [6, { displayName: "Odin_Recall", duration: 8000 }],
+        [11, { displayName: "Super_Recall", duration: 4000 }],
+        [16, { displayName: "Teleporting", duration: 4000 }],
+        [19, { displayName: "Stand_United", duration: 3000 }],
+        [10, { displayName: "Yuumi_W_Ally", duration: 0 }],
+    ]);
 
     public id!: number;
     public networkId!: number;
@@ -18,20 +31,19 @@ class GameObject extends DDragonUnit {
     public isTargetable!: boolean;
     public isVisible!: boolean;
     public type!: UnitType;
-
+    
     public level!: number;
     public spawnCount!: number;
     public attackSpeedMultiplier!: number;
     public attackRange!: number;
     public sizeMultiplier!: number;
-
+    
+    private recallState!: number;
     private spellBook!: number;
     private buffEntryStart!: number;
     private buffEntryEnd!: number;
 
-    constructor(
-        private readonly baseAddress: number
-    ) {
+    constructor(private readonly baseAddress: number) {
         super(baseAddress);
     }
 
@@ -40,43 +52,72 @@ class GameObject extends DDragonUnit {
 
         this.id = Memory.readIntegerFromBuffer(data, Offsets.ObjectArmor);
         this.team = Memory.readIntegerFromBuffer(data, Offsets.ObjectTeam);
-        this.networkId = Memory.readIntegerFromBuffer(data, Offsets.ObjectNetworkID);
+        this.networkId = Memory.readIntegerFromBuffer(
+            data,
+            Offsets.ObjectNetworkID
+        );
         this.position = {
             x: Memory.readFloatFromBuffer(data, Offsets.ObjectPosition),
             y: Memory.readFloatFromBuffer(data, Offsets.ObjectPosition + 4),
-            z: Memory.readFloatFromBuffer(data, Offsets.ObjectPosition + 8)
+            z: Memory.readFloatFromBuffer(data, Offsets.ObjectPosition + 8),
         };
         this.health = Memory.readFloatFromBuffer(data, Offsets.ObjectHealth);
         this.maxHealth = Memory.readFloatFromBuffer(data, Offsets.ObjectMaxHealth);
-        this.isTargetable = Memory.readIntegerFromBuffer(data, Offsets.ObjectTargetable) === 1;
-        this.isVisible = Memory.readMemory(this.baseAddress + Offsets.ObjectVisibility, memoryjs.BOOLEAN);
+        this.isTargetable =
+            Memory.readIntegerFromBuffer(data, Offsets.ObjectTargetable) === 1;
+        this.isVisible = Memory.readMemory(
+            this.baseAddress + Offsets.ObjectVisibility,
+            memoryjs.BOOLEAN
+        );
 
         this.level = Memory.readIntegerFromBuffer(data, Offsets.ObjectLevel);
-        this.attackSpeedMultiplier = Memory.readFloatFromBuffer(data, Offsets.ObjectAttackSpeedMultiplier);
-        this.attackRange = Memory.readFloatFromBuffer(data, Offsets.ObjectAttackRange);
-        this.sizeMultiplier = Memory.readFloatFromBuffer(data, Offsets.ObjectSizeMultiplier);
+        this.attackSpeedMultiplier = Memory.readFloatFromBuffer(
+            data,
+            Offsets.ObjectAttackSpeedMultiplier
+        );
+        this.attackRange = Memory.readFloatFromBuffer(
+            data,
+            Offsets.ObjectAttackRange
+        );
+        this.sizeMultiplier = Memory.readFloatFromBuffer(
+            data,
+            Offsets.ObjectSizeMultiplier
+        );
 
         this.type = this.getUnitType();
-        
+
         if (this.type === UnitType.CHAMPION) {
-            this.spawnCount = Memory.readMemory(this.baseAddress + Offsets.ObjectSpawnCount, memoryjs.INT);
-            
-            this.spellBook = Memory.readIntegerFromBuffer(data, Offsets.ObjectSpellBook);
-            
+            this.recallState = Memory.readMemory(
+                this.baseAddress + Offsets.ObjectRecallState,
+                memoryjs.INT
+            );
+            this.spawnCount = Memory.readMemory(
+                this.baseAddress + Offsets.ObjectSpawnCount,
+                memoryjs.INT
+            );
+            this.spellBook = Memory.readIntegerFromBuffer(
+                data,
+                Offsets.ObjectSpellBook
+            );
+
             this.buffEntryStart = Memory.readIntegerFromBuffer(
                 data,
-                Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesStart,
-                );
-                
-                this.buffEntryEnd = Memory.readIntegerFromBuffer(
-                    data,
-                    Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesEnd,
-                    );
-                }
+                Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesStart
+            );
+
+            this.buffEntryEnd = Memory.readIntegerFromBuffer(
+                data,
+                Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesEnd
+            );
+        }
     }
 
     public isAlive() {
-        return this.health > 0 && (this.spawnCount %2 == 0);
+        return this.health > 0 && this.spawnCount % 2 == 0;
+    }
+
+    public getRecallState(): RecallInfo | undefined {
+        return GameObject.recallStateType.get(this.recallState);
     }
 
     public getBuffManager(): Map<string, Buff> {

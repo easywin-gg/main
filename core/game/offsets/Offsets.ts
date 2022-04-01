@@ -31,7 +31,7 @@ const GameObject = {
     ObjectTargetable: 0xD1C,
     ObjectVisibility: 0x28C,
     ObjectInvulnerable: 0x3EC,
-    ObjectRecalling: 0xDA8,
+    ObjectRecallState: 0xD98,
 
     ObjectSpawnCount: 0x2A0,
     ObjectSizeMultiplier: 0x12D4,

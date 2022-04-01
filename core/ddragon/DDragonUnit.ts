@@ -61,11 +61,11 @@ export enum UnitTag {
     Unit_Ward = 55,
 };
 
-const UNIT_DATA = JSON.parse(fs.readFileSync(`${process.env.APPDATA}/rank1/UnitData.json`, 'utf-8'));
 
 // thanks lview
 class DDragonUnit {
-
+    
+    public static UNIT_DATA: any;
     public static readonly unitTags = new Map<string, UnitTag>([
         ["Unit_", UnitTag.Unit_],
         ["Unit_Champion", UnitTag.Unit_Champion],
@@ -144,12 +144,14 @@ class DDragonUnit {
     constructor(
         address: number
     ) {
+        if(!DDragonUnit.UNIT_DATA) DDragonUnit.UNIT_DATA = JSON.parse(fs.readFileSync(`${process.env.APPDATA}/rank1/UnitData.json`, 'utf-8'));
+
         this.name = Memory.readMemory(
             Memory.readMemory(address + Offsets.ObjectName, memoryjs.DWORD),
             memoryjs.STRING
         );
 
-        this.data = UNIT_DATA.find((x: any) => x.name === this.name.toLowerCase());
+        this.data = DDragonUnit.UNIT_DATA.find((x: any) => x.name === this.name.toLowerCase());
 
         if (this.data) {
             this.healthBarHeight = this.data.healthBarHeight;

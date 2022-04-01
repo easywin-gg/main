@@ -9,6 +9,8 @@ class SDKPluginLoader {
         sdk: SDK,
     ) {
         const files = fs.readdirSync(PLUGINS_FOLDER).filter((fileName) => fileName.endsWith('.js'));
+        console.log(files);
+        
         const game = sdk.game;
         for (const file of files) {
             const fileContent = fs.readFileSync(

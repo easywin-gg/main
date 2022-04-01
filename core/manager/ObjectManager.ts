@@ -23,7 +23,6 @@ class ObjectManager {
         "testcuberender",
         "testcuberender10vision",
         "s5test_wardcorpse",
-        "sru_camprespawnmarker",
         "sru_plantrespawnmarker",
         "preseason_turret_shield"
     ];

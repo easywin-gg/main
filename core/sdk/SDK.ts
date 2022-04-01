@@ -1,5 +1,6 @@
 import { EventEmitter } from "stream";
 import Game from "../game/Game";
+import GameRenderer from "../renderer/GameRenderer";
 
 export type PluginSettings = {
     name: string;
@@ -17,7 +18,10 @@ class SDK extends EventEmitter {
     private static API = new Map<string, APIFunction[]>();
     public static plugins: Map<string, PluginSettings> = new Map<string, PluginSettings>();
 
-    constructor(public readonly game: Game) {
+    constructor(
+        public readonly game: Game,
+        public readonly renderer: GameRenderer
+    ) {
         super();
 
     }

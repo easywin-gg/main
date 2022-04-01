@@ -12,6 +12,8 @@ class SDKPluginLoader {
         console.log(files);
         
         const game = sdk.game;
+        const renderer = sdk.renderer;
+        
         for (const file of files) {
             const fileContent = fs.readFileSync(
                 path.join(PLUGINS_FOLDER, file),

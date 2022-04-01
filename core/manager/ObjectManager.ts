@@ -37,6 +37,7 @@ class ObjectManager {
 
         if (objectManager <= 0) return;
 
+        game.updatedThisFrame.clear();
         const units: number[] = [];
         const nodes: number[] = [
             Memory.readMemory(
@@ -76,8 +77,7 @@ class ObjectManager {
     }
 
     public clearMissing(game: Game) {
-        const missing = Array.from(game.objects.keys())
-            .filter(key => !game.updatedThisFrame.has(key));
+        const missing = Array.from(game.objects.keys()).filter(key => !game.updatedThisFrame.has(key));
 
         for (const networkId of missing) {
             game.objects.delete(networkId);

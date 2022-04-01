@@ -1,5 +1,6 @@
 import Offsets from "../offsets/Offsets";
 import Memory from "../../memory/Memory";
+import Game from "../Game";
 
 export enum SpellSlot {
     Q = 'Q',
@@ -23,6 +24,17 @@ class Spell {
 
         this.level = Memory.readIntegerFromBuffer(data, Offsets.SpellSlotLevel);
         this.expiresAt = Memory.readFloatFromBuffer(data, Offsets.SpellSlotCooldownExpire);
+
+    }
+
+    
+    getCooldown(): number {
+        const cooldown = this.expiresAt - Game.instance.getGameTime();
+        return cooldown > 0 ? cooldown : 0;
+    }
+    
+    isReady(): boolean {
+        return this.getCooldown() === 0;
     }
 
     public static loadSpellBook(spellBookAddress: number): Map<SpellSlot, Spell> {

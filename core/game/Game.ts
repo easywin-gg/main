@@ -6,6 +6,8 @@ import ObjectManager from '../manager/ObjectManager';
 
 class Game {
 
+    public static instance: Game;
+
     private readonly localPlayer = new GameObject(
         Memory.readMemory(Memory.module.modBaseAddr + Offsets.LocalPlayer, memoryjs.INT)
     );

@@ -11,6 +11,7 @@ class Rank1 {
 
     private readonly cdn: CDN;
 
+
     constructor() {
         this.cdn = new CDN();
     }
@@ -34,18 +35,26 @@ class Rank1 {
         Memory.process = process;
         Memory.module = module;
 
-        const game = new Game();
+        Game.instance = new Game();
         const manager = new ObjectManager();
-        manager.readObjectsFromMemory(game);
+        manager.readObjectsFromMemory(Game.instance);
 
 
         const renderer = new GameRenderer();
-        const sdk = new SDK(game, renderer);
+        const sdk = new SDK(Game.instance, renderer);
         await SDKLoader.load(sdk);
-
-        // console.log('[RANK1] SDK and Core initialized');
+        console.log('[RANK1] SDK and Core initialized');
         // const player = game.getLocalPlayer();
         // console.log('[RANK1] Local player:', player.name);
+
+        setInterval(() => {
+            manager.readObjectsFromMemory(Game.instance);
+            manager.clearMissing(Game.instance);
+
+            sdk.emit('tick');
+            sdk.emit('draw');
+        }, 3);
+
 
         // const enemies = game.getEnemyHeroes();
         // console.log('[RANK1] Enemies:', enemies.map(e => `${e.name} > ${e.health}`));

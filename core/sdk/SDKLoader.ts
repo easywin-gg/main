@@ -1,4 +1,4 @@
-import SDK, { PluginSettings } from "./SDK";
+import SDK, { Plugin, PluginSettings } from "./SDK";
 import path from 'path'
 import fs from 'fs';
 
@@ -22,8 +22,7 @@ class SDKPluginLoader {
 
             try {
                 const plugin = new (eval(fileContent));
-                const pluginSettings = plugin?.settings as PluginSettings;
-                this.loadPlugin(pluginSettings);
+                this.loadPlugin(plugin);
             } catch (error) {
                 console.error(`[PluginManager] Failed to load plugin ${file}`);
                 console.error(error);
@@ -31,14 +30,15 @@ class SDKPluginLoader {
         }
     }
 
-    private static loadPlugin(plugin: PluginSettings) {
+    private static async loadPlugin(plugin: Plugin) {
         if (!plugin) throw new Error('Plugin settings cannot be undefined');
-        const { name, version, author } = plugin;
+        const { name, version, author } = plugin?.settings;
 
         if (!name) throw new Error('Plugin name cannot be undefined');
         if (!version) throw new Error('Plugin version cannot be undefined');
         if (!author) throw new Error('Plugin author cannot be undefined');
 
+        await plugin.onLoad();
         console.log(`[PluginManager] Loaded plugin ${name} v${version} by ${author}`);
         SDK.plugins.set(name, plugin);
     }

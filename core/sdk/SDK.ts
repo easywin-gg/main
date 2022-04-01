@@ -8,6 +8,12 @@ export type PluginSettings = {
     author: string;
 }
 
+export type Plugin = {
+    settings: PluginSettings;
+    onLoad(): Promise<void> | void;
+    onUnload(): Promise<void> | void;
+}
+
 export type APIFunction = {
     name: string,
     handler: Function;
@@ -16,7 +22,7 @@ export type APIFunction = {
 class SDK extends EventEmitter {
 
     private static API = new Map<string, APIFunction[]>();
-    public static plugins: Map<string, PluginSettings> = new Map<string, PluginSettings>();
+    public static plugins: Map<string, Plugin> = new Map<string, Plugin>();
 
     constructor(
         public readonly game: Game,
@@ -26,8 +32,8 @@ class SDK extends EventEmitter {
 
     }
 
-    public handleAPIFunction(plugin: PluginSettings, name: string): Function | undefined {
-        const functions = SDK.API.get(plugin.name);
+    public handleAPIFunction(plugin: Plugin, name: string): Function | undefined {
+        const functions = SDK.API.get(plugin.settings.name);
         if (!functions) {
             return undefined;
         }
@@ -41,10 +47,10 @@ class SDK extends EventEmitter {
         return undefined;
     }
 
-    public registerAPIFunction(plugin: PluginSettings, api: APIFunction) {
-        const functions = SDK.API.get(plugin.name);
+    public registerAPIFunction(plugin: Plugin, api: APIFunction) {
+        const functions = SDK.API.get(plugin.settings.name);
         if (!functions) {
-            SDK.API.set(plugin.name, [api]);
+            SDK.API.set(plugin.settings.name, [api]);
             return;
         }
 

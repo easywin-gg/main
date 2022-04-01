@@ -116,6 +116,10 @@ class GameObject extends DDragonUnit {
         return this.health > 0 && this.spawnCount % 2 == 0;
     }
 
+    public isDead() {
+        return this.isAlive() === false;
+    }
+
     public getRecallState(): RecallInfo | undefined {
         return GameObject.recallStateType.get(this.recallState);
     }

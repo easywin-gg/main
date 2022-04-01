@@ -3,8 +3,8 @@ import memoryjs from "memoryjs";
 import ObjectManager from "./core/manager/ObjectManager";
 import Memory from "./core/memory/Memory";
 import Game from "./core/game/Game";
-import SDK from "./sdk/SDK";
-import PluginManager from "./core/plugin/PluginManager";
+import SDK from "./core/sdk/SDK";
+import SDKLoader from "./core/sdk/SDKLoader";
 
 class Rank1 {
 
@@ -34,13 +34,11 @@ class Rank1 {
         Memory.module = module;
 
         const game = new Game();
-        const sdk = new SDK(game);
-
         const manager = new ObjectManager();
         manager.readObjectsFromMemory(game);
 
-        const plugin = new PluginManager(sdk);
-        await plugin.load();
+        const sdk = new SDK(game);
+        await SDKLoader.load(sdk);
 
         // console.log('[RANK1] SDK and Core initialized');
         // const player = game.getLocalPlayer();
@@ -84,20 +82,6 @@ class Rank1 {
         // };
 
         // console.log('[RANK1] Started');
-
-        // while(true) {
-        //     // const position = sdk.renderer.worldToScreen(player.getPosition());
-
-        //     sdk.drawText({
-        //         key: 'player',
-        //         text: `vc me ama e consegue fazer gf e betar outras pessoas`,
-        //         position,
-        //         size: 50,
-        //         color: 'blue',
-        //     });
-
-        //     await new Promise(resolve => setTimeout(resolve, 1000));
-        // }
     }
 }
 

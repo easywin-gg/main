@@ -1,26 +1,28 @@
-import Game from "../core/game/Game";
-import Plugin from "../core/plugin/Plugin";
-import GameRenderer from "../core/renderer/GameRenderer";
-import { PluginSettings } from "../plugins/@types";
+import { EventEmitter } from "stream";
+import Game from "../game/Game";
+
+export type PluginSettings = {
+    name: string;
+    version: number;
+    author: string;
+}
 
 export type APIFunction = {
     name: string,
     handler: Function;
 }
 
-class SDK {
+class SDK extends EventEmitter {
 
     private static API = new Map<string, APIFunction[]>();
+    public static plugins: Map<string, PluginSettings> = new Map<string, PluginSettings>();
 
-    constructor(
-        public readonly game: Game,
-        // public readonly renderer?: GameRenderer
-    ) {
+    constructor(public readonly game: Game) {
+        super();
 
     }
 
-    public getAPIFunction(plugin: PluginSettings, name: string): Function | undefined {
-        console.log('hhahaha?');
+    public handleAPIFunction(plugin: PluginSettings, name: string): Function | undefined {
         const functions = SDK.API.get(plugin.name);
         if (!functions) {
             return undefined;

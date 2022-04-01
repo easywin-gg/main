@@ -1,4 +1,3 @@
-import Core from "../Core";
 import memoryjs from 'memoryjs';
 import Offsets from "./offsets/Offsets";
 import GameObject from "./GameObject";
@@ -19,7 +18,7 @@ class Game {
     }
 
     public getGameTime(): number {
-        return Memory.readMemory(Memory.module.modBaseAddr + Offsets.GameTime, memoryjs.FLOAT);;
+        return Memory.readMemory(Memory.module.modBaseAddr + Offsets.GameTime, memoryjs.FLOAT);
     }
 
     public getLocalPlayer(): GameObject {

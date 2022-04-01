@@ -1,5 +1,5 @@
 const GameClient = {
-    GameTime: 0x310DF84,
+    GameTime: 0x31023CC,
     ObjectManager: 0x24B9BB0,
     LocalPlayer: 0x310B314,
     UnderMouseObject: 0x30FED10,

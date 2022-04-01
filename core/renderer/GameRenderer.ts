@@ -1,7 +1,6 @@
 import memoryjs from 'memoryjs';
-import Core from "../../Core";
-import Memory from '../../memory/Memory';
-import Offsets from "../offsets/Offsets";
+import Memory from '../memory/Memory';
+import Offsets from "../game/offsets/Offsets";
 
 export type Vector2 = {
     x: number;

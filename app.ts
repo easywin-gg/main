@@ -1,8 +1,10 @@
 import CDN from "./cdn/CDN";
 import memoryjs from "memoryjs";
-import Core from "./core/Core";
-import PluginManager from "./core/plugin/PluginManager";
 import ObjectManager from "./core/manager/ObjectManager";
+import Memory from "./core/memory/Memory";
+import Game from "./core/game/Game";
+import SDK from "./sdk/SDK";
+import PluginManager from "./core/plugin/PluginManager";
 
 class Rank1 {
 
@@ -28,33 +30,43 @@ class Rank1 {
         const module = memoryjs.findModule('League of Legends.exe', process.th32ProcessID);
         console.log('[RANK1] Module found: ' + module.modBaseAddr);
 
-        const core = new Core(process, module);
+        Memory.process = process;
+        Memory.module = module;
 
-        console.log('[RANK1] SDK and Core initialized');
-        const player = core.game.getLocalPlayer();
-        console.log('[RANK1] Local player:', player.name);
+        const game = new Game();
+        const sdk = new SDK(game);
 
         const manager = new ObjectManager();
-        manager.readObjectsFromMemory(core.game);
+        manager.readObjectsFromMemory(game);
 
-        const enemies = core.game.getEnemyHeroes();
-        console.log('[RANK1] Enemies:', enemies.map(e => `${e.name} > ${e.health}`));
+        const plugin = new PluginManager(sdk);
+        await plugin.load();
 
-        // const pluginManager = new PluginManager(sdk);
-        // await pluginManager.load();
-        // const position = player.getPosition();
-        // sdk.drawCircleWorld({
-        //     key: 'circleAA',
-        //     position: position,
-        //     radius: player.getAttackRange() * 1.25,
-        //     color: 'red',
-        // })
+        // console.log('[RANK1] SDK and Core initialized');
+        // const player = game.getLocalPlayer();
+        // console.log('[RANK1] Local player:', player.name);
 
-        // if (enemies.length >= 1) {
-        //     while (true) {
+        // const enemies = game.getEnemyHeroes();
+        // console.log('[RANK1] Enemies:', enemies.map(e => `${e.name} > ${e.health}`));
 
-        //         await new Promise((resolve) => setTimeout(resolve, 1))
+        // const sdk = new SDK(game);
+
+        // while (true) {
+        //     manager.readObjectsFromMemory(game);
+
+        //     const heroes = game.getEnemyHeroes();
+        //     const enemy = sdk.targetSelector.getLowestTarget(
+        //         heroes
+        //     )[0];
+
+        //     let position;
+        //     if (enemy) {
+        //         console.log(enemy.name);
+        //         position = sdk.renderer.worldToScreen(enemy.position);
         //     }
+
+        //     sdk.orbwalker.orbwalk(position);
+        //     await new Promise((resolve) => setTimeout(resolve, 10))
         // }
 
         // console.log(`Welcome ${player.getName()}`);

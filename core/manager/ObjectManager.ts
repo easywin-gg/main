@@ -117,7 +117,6 @@ class ObjectManager {
             }
         }
 
-        game.updatedThisFrame.add(object.networkId);
         if (object?.type === UnitType.CHAMPION) {
             game.champions.add(
                 object

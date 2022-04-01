@@ -3,7 +3,7 @@ export type PluginInfo = {
     version: number,
     author: string
 }
-
+ 
 export type Plugin = {
     info: PluginInfo,
     load: () => Promise<void>,

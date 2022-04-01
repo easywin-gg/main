@@ -155,7 +155,7 @@ class DDragonUnit {
             this.healthBarHeight = this.data.healthBarHeight;
             this.baseMoveSpeed = this.data.baseMoveSpeed;
             this.baseAttackRange = this.data.baseAttackRange;
-            this.baseAttackSpeed = this.data.baseAttackSpeed;
+            this.baseAttackSpeed = this.data.attackSpeed;
             this.attackSpeedRatio = this.data.attackSpeedRatio;
             this.acquisitionRange = this.data.acquisitionRange;
             this.selectionRadius = this.data.selectionRadius;

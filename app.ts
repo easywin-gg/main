@@ -5,6 +5,7 @@ import Memory from "./core/memory/Memory";
 import Game from "./core/game/Game";
 import SDK from "./core/sdk/SDK";
 import SDKLoader from "./core/sdk/SDKLoader";
+import GameRenderer from "./core/renderer/GameRenderer";
 
 class Rank1 {
 
@@ -37,7 +38,9 @@ class Rank1 {
         const manager = new ObjectManager();
         manager.readObjectsFromMemory(game);
 
-        const sdk = new SDK(game);
+
+        const renderer = new GameRenderer();
+        const sdk = new SDK(game, renderer);
         await SDKLoader.load(sdk);
 
         // console.log('[RANK1] SDK and Core initialized');

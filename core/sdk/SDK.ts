@@ -1,6 +1,7 @@
 import { EventEmitter } from "stream";
-import Game from "../game/Game";
-import GameRenderer from "../renderer/GameRenderer";
+import Memory from "../memory/Memory";
+import Offsets from "../offsets/Offsets";
+import memoryjs from "memoryjs";
 
 export type PluginSettings = {
     name: string;
@@ -24,12 +25,15 @@ class SDK extends EventEmitter {
     private static API = new Map<string, APIFunction[]>();
     public static plugins: Map<string, Plugin> = new Map<string, Plugin>();
 
-    constructor(
-        public readonly game: Game,
-        public readonly renderer: GameRenderer
-    ) {
-        super();
+    public static getGameTime(): number {
+        return Memory.readMemory(
+            Memory.module.modBaseAddr + Offsets.GameTime,
+            memoryjs.FLOAT
+        );
+    }
 
+    public getGameTime(): number {
+        return SDK.getGameTime();
     }
 
     public handleAPIFunction(plugin: Plugin, name: string): Function | undefined {

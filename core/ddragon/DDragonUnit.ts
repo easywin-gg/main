@@ -1,7 +1,7 @@
 import fs from 'fs';
-import memoryjs, { Process, Module } from 'memoryjs';
+import memoryjs from 'memoryjs';
 import Memory from '../memory/Memory';
-import Offsets from '../game/offsets/Offsets';
+import Offsets from '../offsets/Offsets';
 
 export enum UnitTag {
     Unit_ = 1,
@@ -22,7 +22,7 @@ export enum UnitTag {
     Unit_Monster_Blue = 16,
     Unit_Monster_Buff = 17,
     Unit_Monster_Camp = 18,
-    Unit_Monster_Crab = 19,
+    Unit_Monster_Crab = 19, 
     Unit_Monster_Dragon = 20,
     Unit_Monster_Epic = 21,
     Unit_Monster_Gromp = 22,

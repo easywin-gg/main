@@ -1,18 +1,20 @@
 import SDK, { Plugin, PluginSettings } from "./SDK";
 import path from 'path'
 import fs from 'fs';
+import ObjectManager from "../ObjectManager";
+import GameRenderer from "../renderer/GameRenderer";
+import GameObject, { RecallInfo } from "../GameObject";
 
 const PLUGINS_FOLDER = `${process.env.APPDATA}/rank1/scripts`;
 class SDKPluginLoader {
 
     public static async load(
+        recallStateType: Map<number, RecallInfo>,
         sdk: SDK,
+        objectManager: ObjectManager,
+        renderer: GameRenderer,
     ) {
         const files = fs.readdirSync(PLUGINS_FOLDER).filter((fileName) => fileName.endsWith('.js'));
-        console.log(files);
-        
-        const game = sdk.game;
-        const renderer = sdk.renderer;
         
         for (const file of files) {
             const fileContent = fs.readFileSync(

@@ -1,6 +1,6 @@
 import memoryjs from 'memoryjs';
 import Memory from '../memory/Memory';
-import Offsets from "../game/offsets/Offsets";
+import Offsets from "../offsets/Offsets";
 
 export type Vector2 = {
     x: number;
@@ -19,7 +19,6 @@ export type Vector4 = {
     z: number;
     w: number;
 }
-
 
 class GameRenderer {
 

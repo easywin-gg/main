@@ -1,6 +1,6 @@
+import Memory from "../memory/Memory";
 import Offsets from "../offsets/Offsets";
-import Memory from "../../memory/Memory";
-import Game from "../Game";
+import SDK from "../sdk/SDK";
 
 export enum SpellSlot {
     Q = 'Q',
@@ -27,9 +27,8 @@ class Spell {
 
     }
 
-    
     getCooldown(): number {
-        const cooldown = this.expiresAt - Game.instance.getGameTime();
+        const cooldown = this.expiresAt - SDK.getGameTime();
         return cooldown > 0 ? cooldown : 0;
     }
     

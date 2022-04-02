@@ -1,8 +1,8 @@
 import Offsets from "./offsets/Offsets";
-import DDragonUnit, { UnitTag } from "../ddragon/DDragonUnit";
-import Memory from "../memory/Memory";
-import { Vector3 } from "../renderer/GameRenderer";
-import { UnitType } from "../manager/ObjectManager";
+import DDragonUnit, { UnitTag } from "./ddragon/DDragonUnit";
+import Memory from "./memory/Memory";
+import { Vector3 } from "./renderer/GameRenderer";
+import { UnitType } from "./ObjectManager";
 import Buff from "./objects/Buff";
 import memoryjs from "memoryjs";
 import Spell, { SpellSlot } from "./objects/Spell";
@@ -22,7 +22,6 @@ class GameObject extends DDragonUnit {
         [10, { displayName: "Yuumi_W_Ally", duration: 0 }],
     ]);
 
-    public id!: number;
     public networkId!: number;
     public team!: number;
     public position!: Vector3;
@@ -31,13 +30,13 @@ class GameObject extends DDragonUnit {
     public isTargetable!: boolean;
     public isVisible!: boolean;
     public type!: UnitType;
-    
+
     public level!: number;
     public spawnCount!: number;
     public attackSpeedMultiplier!: number;
     public attackRange!: number;
     public sizeMultiplier!: number;
-    
+
     private recallState!: number;
     private spellBook!: number;
     private buffEntryStart!: number;
@@ -47,41 +46,31 @@ class GameObject extends DDragonUnit {
         super(baseAddress);
     }
 
-    public loadFromMemory(data?: Buffer, deepLoad = true, buffSize = 0x3600) {
-        if (!data) data = Memory.readBuffer(this.baseAddress, 0x3600);
+    public loadFromMemory() {
+        this.team = Memory.readMemory(this.baseAddress + Offsets.ObjectTeam, memoryjs.INT);
+        this.networkId = Memory.readMemory(this.baseAddress + Offsets.ObjectNetworkID, memoryjs.INT);
 
-        this.id = Memory.readIntegerFromBuffer(data, Offsets.ObjectArmor);
-        this.team = Memory.readIntegerFromBuffer(data, Offsets.ObjectTeam);
-        this.networkId = Memory.readIntegerFromBuffer(
-            data,
-            Offsets.ObjectNetworkID
-        );
         this.position = {
-            x: Memory.readFloatFromBuffer(data, Offsets.ObjectPosition),
-            y: Memory.readFloatFromBuffer(data, Offsets.ObjectPosition + 4),
-            z: Memory.readFloatFromBuffer(data, Offsets.ObjectPosition + 8),
+            x: Memory.readMemory(this.baseAddress + Offsets.ObjectPosition, memoryjs.FLOAT),
+            y: Memory.readMemory(this.baseAddress + Offsets.ObjectPosition + 4, memoryjs.FLOAT),
+            z: Memory.readMemory(this.baseAddress + Offsets.ObjectPosition + 8, memoryjs.FLOAT),
         };
-        this.health = Memory.readFloatFromBuffer(data, Offsets.ObjectHealth);
-        this.maxHealth = Memory.readFloatFromBuffer(data, Offsets.ObjectMaxHealth);
-        this.isTargetable =
-            Memory.readIntegerFromBuffer(data, Offsets.ObjectTargetable) === 1;
-        this.isVisible = Memory.readMemory(
-            this.baseAddress + Offsets.ObjectVisibility,
-            memoryjs.BOOLEAN
+        this.health = Memory.readMemory(this.baseAddress + Offsets.ObjectHealth, memoryjs.FLOAT);
+        this.maxHealth = Memory.readMemory(this.baseAddress + Offsets.ObjectMaxHealth, memoryjs.FLOAT);
+        this.isTargetable = Memory.readMemory(this.baseAddress + Offsets.ObjectTargetable, memoryjs.BOOLEAN);
+        this.isVisible = Memory.readMemory(this.baseAddress + Offsets.ObjectVisibility, memoryjs.BOOLEAN);
+        this.level = Memory.readMemory(this.baseAddress + Offsets.ObjectLevel, memoryjs.INT);
+        this.attackSpeedMultiplier = Memory.readMemory(
+            this.baseAddress + Offsets.ObjectAttackSpeedMultiplier,
+            memoryjs.FLOAT
         );
-
-        this.level = Memory.readIntegerFromBuffer(data, Offsets.ObjectLevel);
-        this.attackSpeedMultiplier = Memory.readFloatFromBuffer(
-            data,
-            Offsets.ObjectAttackSpeedMultiplier
+        this.attackRange = Memory.readMemory(
+            this.baseAddress + Offsets.ObjectAttackRange,
+            memoryjs.FLOAT
         );
-        this.attackRange = Memory.readFloatFromBuffer(
-            data,
-            Offsets.ObjectAttackRange
-        );
-        this.sizeMultiplier = Memory.readFloatFromBuffer(
-            data,
-            Offsets.ObjectSizeMultiplier
+        this.sizeMultiplier = Memory.readMemory(
+            this.baseAddress + Offsets.ObjectSizeMultiplier,
+            memoryjs.FLOAT
         );
 
         this.type = this.getUnitType();
@@ -95,19 +84,20 @@ class GameObject extends DDragonUnit {
                 this.baseAddress + Offsets.ObjectSpawnCount,
                 memoryjs.INT
             );
-            this.spellBook = Memory.readIntegerFromBuffer(
-                data,
-                Offsets.ObjectSpellBook
+
+            this.spellBook = Memory.readMemory(
+                this.baseAddress + Offsets.ObjectSpellBook,
+                memoryjs.INT
             );
 
-            this.buffEntryStart = Memory.readIntegerFromBuffer(
-                data,
-                Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesStart
+            this.buffEntryStart = Memory.readMemory(
+                this.baseAddress + Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesStart,
+                memoryjs.INT
             );
 
-            this.buffEntryEnd = Memory.readIntegerFromBuffer(
-                data,
-                Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesEnd
+            this.buffEntryEnd = Memory.readMemory(
+                this.baseAddress + Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesEnd,
+                memoryjs.INT
             );
         }
     }

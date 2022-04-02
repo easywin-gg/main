@@ -12,7 +12,7 @@ const GameObject = {
     ObjectName: 0x2BE4,
     ObjectPlayerName: 0x6C,
 
-    ObjectTeam: 0x4C,
+    ObjectTeam: 0x4C, 
     ObjectLevel: 0x339C,
 
     ObjectHealth: 0xDB4,

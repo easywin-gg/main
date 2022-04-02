@@ -1,16 +1,16 @@
 import CDN from "./cdn/CDN";
 import memoryjs from "memoryjs";
-import ObjectManager from "./core/manager/ObjectManager";
+import ObjectManager from "./core/ObjectManager";
 import Memory from "./core/memory/Memory";
-import Game from "./core/game/Game";
 import SDK from "./core/sdk/SDK";
 import SDKLoader from "./core/sdk/SDKLoader";
 import GameRenderer from "./core/renderer/GameRenderer";
+import GameObject from "./core/GameObject";
+import Offsets from "./core/offsets/Offsets";
 
 class Rank1 {
 
     private readonly cdn: CDN;
-
 
     constructor() {
         this.cdn = new CDN();
@@ -34,28 +34,29 @@ class Rank1 {
 
         Memory.process = process;
         Memory.module = module;
+        ObjectManager.instance = new ObjectManager();
 
-        Game.instance = new Game();
-        const manager = new ObjectManager();
-        manager.readObjectsFromMemory(Game.instance);
+        const sdk = new SDK();
+        await SDKLoader.load(
+            GameObject.recallStateType,
+            sdk,
+            ObjectManager.instance,
+            new GameRenderer()
+        );
 
+        ObjectManager.readObjectsFromMemory();
 
-        const renderer = new GameRenderer();
-        const sdk = new SDK(Game.instance, renderer);
-        await SDKLoader.load(sdk);
         console.log('[RANK1] SDK and Core initialized');
-        // const player = game.getLocalPlayer();
-        // console.log('[RANK1] Local player:', player.name);
+        const player = ObjectManager.instance.getLocalPlayer();
+        console.log('[RANK1] Local player:', player.name);
+        console.log('[RANK1] Objects size:', ObjectManager.instance.objects.size);
 
-        setInterval(() => {
-            manager.readObjectsFromMemory(Game.instance);
-            manager.clearMissing(Game.instance);
-
+        console.log('[RANK1] Starting main loop');
+        while(true) {
+            ObjectManager.readObjectsFromMemory();
             sdk.emit('tick');
             sdk.emit('draw');
-        }, 3);
-
-
+        }
         // const enemies = game.getEnemyHeroes();
         // console.log('[RANK1] Enemies:', enemies.map(e => `${e.name} > ${e.health}`));
 

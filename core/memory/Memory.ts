@@ -17,7 +17,7 @@ class Memory {
     public static readIntegerFromBuffer(buffer: Buffer, offset: number) {
         return buffer.slice(offset, offset + 4).readIntLE(0, 4);
     }
-
+ 
     public static readFloatFromBuffer(buffer: Buffer, offset: number) {
         return buffer.slice(offset, offset + 4).readFloatLE(0);
     }

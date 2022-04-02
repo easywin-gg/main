@@ -1,6 +1,6 @@
 import memoryjs from 'memoryjs';
 import Offsets from "../offsets/Offsets";
-import Memory from "../../memory/Memory";
+import Memory from "../memory/Memory";
 
 class Buff {
 
@@ -9,7 +9,7 @@ class Buff {
     public expiresAt: number;
 
     constructor(protected readonly address: number) {
-        const data = Memory.readBuffer(
+        const data = Memory.readBuffer( 
             address,
             Offsets.BuffSize
         );

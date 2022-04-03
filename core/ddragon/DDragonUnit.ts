@@ -22,7 +22,7 @@ export enum UnitTag {
     Unit_Monster_Blue = 16,
     Unit_Monster_Buff = 17,
     Unit_Monster_Camp = 18,
-    Unit_Monster_Crab = 19, 
+    Unit_Monster_Crab = 19,
     Unit_Monster_Dragon = 20,
     Unit_Monster_Epic = 21,
     Unit_Monster_Gromp = 22,
@@ -61,10 +61,9 @@ export enum UnitTag {
     Unit_Ward = 55,
 };
 
-
 // thanks lview
 class DDragonUnit {
-    
+
     public static UNIT_DATA: any;
     public static readonly unitTags = new Map<string, UnitTag>([
         ["Unit_", UnitTag.Unit_],
@@ -126,48 +125,39 @@ class DDragonUnit {
 
     private readonly data: any;
 
-    public readonly name: string;
-    public readonly healthBarHeight!: number;
-    public readonly baseMoveSpeed!: number;
-    public readonly baseAttackRange!: number;
-    public readonly baseAttackSpeed!: number;
-    public readonly attackSpeedRatio!: number;
-    public readonly acquisitionRange!: number;
-    public readonly selectionRadius!: number;
-    public readonly pathingRadius!: number;
-    public readonly gameplayRadius!: number;
-    public readonly basicAtkMissileSpeed!: number;
-    public readonly basicAtkWindup!: number;
-    public readonly purchaseIdentities!: string[];
+    public readonly healthBarHeight: number;
+    public readonly baseMoveSpeed: number;
+    public readonly baseAttackRange: number;
+    public readonly baseAttackSpeed: number;
+    public readonly attackSpeedRatio: number;
+    public readonly acquisitionRange: number;
+    public readonly selectionRadius: number;
+    public readonly pathingRadius: number;
+    public readonly gameplayRadius: number;
+    public readonly basicAtkMissileSpeed: number;
+    public readonly basicAtkWindup: number;
+    public readonly purchaseIdentities: string[];
     public readonly tags: UnitTag[] = [];
 
     constructor(
-        address: number
-    ) {
-        if(!DDragonUnit.UNIT_DATA) DDragonUnit.UNIT_DATA = JSON.parse(fs.readFileSync(`${process.env.APPDATA}/rank1/UnitData.json`, 'utf-8'));
-
-        this.name = Memory.readMemory(
-            Memory.readMemory(address + Offsets.ObjectName, memoryjs.DWORD),
-            memoryjs.STRING
-        );
+        public readonly name: string
+    ) { 
+        if (!DDragonUnit.UNIT_DATA) DDragonUnit.UNIT_DATA = JSON.parse(fs.readFileSync(`${process.env.APPDATA}/rank1/UnitData.json`, 'utf-8'));
 
         this.data = DDragonUnit.UNIT_DATA.find((x: any) => x.name === this.name.toLowerCase());
-
-        if (this.data) {
-            this.healthBarHeight = this.data.healthBarHeight;
-            this.baseMoveSpeed = this.data.baseMoveSpeed;
-            this.baseAttackRange = this.data.baseAttackRange;
-            this.baseAttackSpeed = this.data.attackSpeed;
-            this.attackSpeedRatio = this.data.attackSpeedRatio;
-            this.acquisitionRange = this.data.acquisitionRange;
-            this.selectionRadius = this.data.selectionRadius;
-            this.pathingRadius = this.data.pathingRadius;
-            this.gameplayRadius = this.data.gameplayRadius;
-            this.basicAtkMissileSpeed = this.data.basicAtkMissileSpeed;
-            this.basicAtkWindup = this.data.basicAtkWindup;
-            this.purchaseIdentities = this.data.purchaseIdentities;
-            this.tags = this.data.tags.map((x: string) => DDragonUnit.unitTags.get(x));
-        }
+        this.healthBarHeight = this.data?.healthBarHeight;
+        this.baseMoveSpeed = this.data?.baseMoveSpeed;
+        this.baseAttackRange = this.data?.baseAttackRange;
+        this.baseAttackSpeed = this.data?.attackSpeed;
+        this.attackSpeedRatio = this.data?.attackSpeedRatio;
+        this.acquisitionRange = this.data?.acquisitionRange;
+        this.selectionRadius = this.data?.selectionRadius;
+        this.pathingRadius = this.data?.pathingRadius;
+        this.gameplayRadius = this.data?.gameplayRadius;
+        this.basicAtkMissileSpeed = this.data?.basicAtkMissileSpeed;
+        this.basicAtkWindup = this.data?.basicAtkWindup;
+        this.purchaseIdentities = this.data?.purchaseIdentities;
+        this.tags = this.data?.tags.map((x: string) => DDragonUnit.unitTags.get(x));
     }
 
     public isMeele(): boolean {

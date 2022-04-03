@@ -9,10 +9,11 @@ class Buff {
     public expiresAt: number;
 
     constructor(protected readonly address: number) {
-        const data = Memory.readBuffer( 
+        const data = Memory.readBuffer(
             address,
             Offsets.BuffSize
         );
+
         this.name = Memory.readMemory(
             Memory.readIntegerFromBuffer(data, Offsets.BuffInfo) + Offsets.BuffInfoName,
             memoryjs.STRING

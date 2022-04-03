@@ -11,6 +11,7 @@ class SDKPluginLoader {
     public static async load(
         recallStateType: Map<number, RecallInfo>,
         sdk: SDK,
+        localPlayer: GameObject,
         objectManager: ObjectManager,
         renderer: GameRenderer,
     ) {

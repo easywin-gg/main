@@ -2,6 +2,7 @@ import { EventEmitter } from "stream";
 import Memory from "../memory/Memory";
 import Offsets from "../offsets/Offsets";
 import memoryjs from "memoryjs";
+import GameObject from "../GameObject";
 
 export type PluginSettings = {
     name: string;
@@ -25,15 +26,8 @@ class SDK extends EventEmitter {
     private static API = new Map<string, APIFunction[]>();
     public static plugins: Map<string, Plugin> = new Map<string, Plugin>();
 
-    public static getGameTime(): number {
-        return Memory.readMemory(
-            Memory.module.modBaseAddr + Offsets.GameTime,
-            memoryjs.FLOAT
-        );
-    }
-
     public getGameTime(): number {
-        return SDK.getGameTime();
+        return GameObject.getGameTime();
     }
 
     public handleAPIFunction(plugin: Plugin, name: string): Function | undefined {

@@ -40,6 +40,7 @@ class Rank1 {
         await SDKLoader.load(
             GameObject.recallStateType,
             sdk,
+            ObjectManager.instance.localPlayer,
             ObjectManager.instance,
             new GameRenderer()
         );
@@ -47,13 +48,15 @@ class Rank1 {
         ObjectManager.readObjectsFromMemory();
 
         console.log('[RANK1] SDK and Core initialized');
-        const player = ObjectManager.instance.getLocalPlayer();
-        console.log('[RANK1] Local player:', player.name);
+        const player = ObjectManager.instance.localPlayer;
+        console.log('[RANK1] Local player:', player.getName());
         console.log('[RANK1] Objects size:', ObjectManager.instance.objects.size);
 
         console.log('[RANK1] Starting main loop');
         while(true) {
             ObjectManager.readObjectsFromMemory();
+            ObjectManager.clearMissingObjects();
+
             sdk.emit('tick');
             sdk.emit('draw');
         }

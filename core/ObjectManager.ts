@@ -13,7 +13,7 @@ export enum UnitType {
     TURRET = 3,
     MISSILE = 4,
     OTHER = 5
-} 
+}
 
 class ObjectManager {
 
@@ -28,18 +28,13 @@ class ObjectManager {
 
     private static blacklistedObjects: number[] = [];
     public static instance: ObjectManager;
-
-    private readonly localPlayer: GameObject = new GameObject(
+    public readonly localPlayer: GameObject = new GameObject(
         Memory.readMemory(Memory.module.modBaseAddr + Offsets.LocalPlayer, memoryjs.INT)
     );
 
     public objects = new Map<number, GameObject>();
     public champions = new Set<GameObject>();
-
-    public getLocalPlayer(): GameObject {
-        this.localPlayer.loadFromMemory();
-        return this.localPlayer;
-    }
+    public updatedObjects = new Set<number>();
 
     public getObjectByNetworkId(id: number): GameObject | undefined {
         return this.objects.get(id);
@@ -48,37 +43,37 @@ class ObjectManager {
     public getHeroes(): GameObject[] {
         return Array.from(this.champions.values());
     }
-    
+
     public getEnemyHeroes(): GameObject[] {
         const heroes = this.getHeroes();
-        const team = this.getLocalPlayer().team;
+        const team = this.localPlayer.getTeam();
 
-        return heroes.filter(o => o.team !== team);
+        return heroes.filter(o => o.getTeam() !== team);
     }
 
     public getAllyHeroes(): GameObject[] {
         const heroes = this.getHeroes();
-        const team = this.getLocalPlayer().team;
+        const team = this.localPlayer.getTeam();
 
-        return heroes.filter(o => o.team === team);
+        return heroes.filter(o => o.getTeam() === team);
     }
 
     public getTurrets(): GameObject[] {
-        return Array.from(this.objects.values()).filter(o => o.type === UnitType.TURRET);
+        return Array.from(this.objects.values()).filter(o => o.getType() === UnitType.TURRET);
     }
 
     public getEnemyTurrets(): GameObject[] {
         const turrets = this.getTurrets();
-        const team = this.getLocalPlayer().team;
+        const team = this.localPlayer.getTeam();
 
-        return turrets.filter(o => o.team !== team);
+        return turrets.filter(o => o.getTeam() !== team);
     }
 
     public getAllyTurrets(): GameObject[] {
         const turrets = this.getTurrets();
-        const team = this.getLocalPlayer().team;
+        const team = this.localPlayer.getTeam();
 
-        return turrets.filter(o => o.team === team);
+        return turrets.filter(o => o.getTeam() === team);
     }
 
     public static readObjectsFromMemory() {
@@ -89,8 +84,7 @@ class ObjectManager {
 
         if (objectManager <= 0) return;
 
-        ObjectManager.instance.objects.clear();
-        ObjectManager.instance.champions.clear();
+        ObjectManager.instance.updatedObjects.clear();
 
         const units: number[] = [];
         const nodes: number[] = [
@@ -130,32 +124,41 @@ class ObjectManager {
         }
     }
 
+    public static clearMissingObjects() {
+        ObjectManager.instance.objects.forEach((value, key) => {
+            if (!ObjectManager.instance.updatedObjects.has(key)) {
+                ObjectManager.instance.objects.delete(key);
+
+                if (value.getType() === UnitType.CHAMPION) {
+                    ObjectManager.instance.champions.delete(value);
+                }
+            }
+        });
+    }
+
     private static scanUnit(address: number) {
         const object = new GameObject(address);
-        object.loadFromMemory();
+        const networkId = object.getNetworkId();
 
-        if (object?.networkId == 0) return;
+        if (networkId == 0 || this.blacklistedObjects.includes(networkId)) return;
+        if (this.blacklistedObjectNames.includes(object.getName())) return;
 
-        ObjectManager.instance.objects.set(
-            object.networkId,
-            object
-        );
+        ObjectManager.instance.updatedObjects.add(networkId);
+        if (ObjectManager.instance.objects.has(networkId)) return;
 
-        if (object.name.length <= 2
-            || !/^[ -~\t\n\r]+$/.test(object.name)
-            || ObjectManager.blacklistedObjectNames.includes(object.name.toLowerCase())
-            || object.tags.length <= 0
+        if (object.getName().length <= 2
+            || !/^[ -~\t\n\r]+$/.test(object.getName())
+            || (!object?.unit?.tags || object.unit.tags.length <= 0)
         ) {
-            this.blacklistedObjects.push(object.networkId);
+            this.blacklistedObjects.push(networkId);
             return;
         }
 
-        if (object.type === UnitType.CHAMPION) {
-            ObjectManager.instance.champions.add(
-                object
-            );
+        ObjectManager.instance.objects.set(networkId, object);
+        if (object.getType() === UnitType.CHAMPION) {
+            ObjectManager.instance.champions.add(object);
         }
-     }
+    }
 }
 
 export default ObjectManager;

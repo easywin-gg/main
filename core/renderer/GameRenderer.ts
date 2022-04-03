@@ -39,6 +39,10 @@ class GameRenderer {
         this.height = 1080;
     }
 
+    isInScreen(point: Vector2, offsetX: number = 0, offsetY: number = 0): boolean {
+        return point.x > -offsetX && point.x < (this.width + offsetX) && point.y > -offsetY && point.y < (this.height + offsetY);
+    }
+
     worldToScreen(position: Vector3): Vector2 {
         const data = Memory.readBuffer(
             Memory.module.modBaseAddr + Offsets.ViewProjMatrices,

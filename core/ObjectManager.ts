@@ -6,13 +6,13 @@ import memory from "memoryjs";
 
 const MAX_UNITS = 500;
 
-export enum UnitType {
-    CHAMPION = 0,
-    MINION = 1,
-    JUNGLE = 2,
-    TURRET = 3,
-    MISSILE = 4,
-    OTHER = 5
+export const UnitType = {
+    CHAMPION: 0,
+    MINION: 1,
+    JUNGLE: 2,
+    TURRET: 3,
+    MISSILE: 4,
+    OTHER: 5
 }
 
 class ObjectManager {
@@ -100,8 +100,6 @@ class ObjectManager {
             if (units.includes(node)) continue;
 
             units.push(node);
-
-            // const data = Memory.readBuffer(node, 0x18);
 
             for (var i = 0; i < 3; i++) {
                 var child_address = Memory.readMemory(node + (i * 4), memoryjs.INT);

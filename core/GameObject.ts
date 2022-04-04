@@ -3,9 +3,9 @@ import DDragonUnit, { UnitTag } from "./ddragon/DDragonUnit";
 import Memory from "./memory/Memory";
 import { Vector3 } from "./renderer/GameRenderer";
 import { UnitType } from "./ObjectManager";
-import Buff from "./objects/Buff";
 import memoryjs from "memoryjs";
-import Spell, { SpellSlot } from "./objects/Spell";
+import BuffManager from "./objects/manager/BuffManager";
+import SpellBook from "./objects/manager/SpellBook";
 
 export type RecallInfo = {
     displayName: string;
@@ -30,38 +30,19 @@ class GameObject {
 
     private name: string;
     private team: number;
-    private spellBook: number;
-    private type: UnitType;
+    private spellBookPointer: number;
+    private type: number;
 
     constructor(private readonly baseAddress: number) {
         this.name = Memory.readMemory(
             Memory.readMemory(this.baseAddress + Offsets.ObjectName, memoryjs.DWORD),
             memoryjs.STRING
         );
-
         this.team = Memory.readMemory(this.baseAddress + Offsets.ObjectTeam, memoryjs.INT);
-        this.spellBook = Memory.readMemory(this.baseAddress + Offsets.ObjectSpellBook, memoryjs.INT);
+        this.spellBookPointer = Memory.readMemory(this.baseAddress + Offsets.ObjectSpellBook, memoryjs.INT);
+
         this.type = this.getUnitType();
-
         this.unit = new DDragonUnit(this.name);
-    }
-
-    public isAlive() {
-        return this.getHealth() > 0 && (
-            this.getUnitType() === UnitType.CHAMPION ? this.getSpawnCount() % 2 == 0 : true
-        );
-    }
-
-    public isDead() {
-        return this.isAlive() === false;
-    }
-
-    public isTargetable() {
-        return Memory.readMemory(this.baseAddress + Offsets.ObjectTargetable, memoryjs.BOOLEAN);
-    }
-
-    public isVisible() {
-        return Memory.readMemory(this.baseAddress + Offsets.ObjectVisibility, memoryjs.BOOLEAN);
     }
 
     public getNetworkId() {
@@ -113,7 +94,7 @@ class GameObject {
         return GameObject.recallStateType.get(state);
     }
 
-    public getBuffManager(): Map<string, Buff> {
+    public getBuffManager(): BuffManager | undefined {
         const buffEntryStart = Memory.readMemory(
             this.baseAddress + Offsets.ObjectBuffManager + Offsets.ObjectBuffManagerEntriesStart,
             memoryjs.INT
@@ -124,21 +105,35 @@ class GameObject {
             memoryjs.INT
         );
 
-        if (buffEntryStart <= 0 || buffEntryEnd <= 0) new Map();
-        return Buff.loadBuffManager(buffEntryStart, buffEntryEnd);
+        if (buffEntryStart <= 0 || buffEntryEnd <= 0) return;
+        return new BuffManager(this, buffEntryStart, buffEntryEnd);
     }
 
-    public getSpellBook(): Map<SpellSlot, Spell> {
-        if (this.spellBook <= 0) return new Map();
-        return Spell.loadSpellBook(this.spellBook);
+    public getSpellBook(): SpellBook | undefined {
+        if (this.spellBookPointer <= 0) return;
+        return new SpellBook(this, this.spellBookPointer);
     }
 
     public getPosition(): Vector3 {
-        return {
-            x: Memory.readMemory(this.baseAddress + Offsets.ObjectPosition, memoryjs.FLOAT),
-            y: Memory.readMemory(this.baseAddress + Offsets.ObjectPosition + 4, memoryjs.FLOAT),
-            z: Memory.readMemory(this.baseAddress + Offsets.ObjectPosition + 8, memoryjs.FLOAT),
-        };
+        return Memory.readMemory(this.baseAddress + Offsets.ObjectPosition, memoryjs.VEC3);
+    }
+
+    public isAlive() {
+        return this.getHealth() > 0 && (
+            this.getUnitType() === UnitType.CHAMPION ? this.getSpawnCount() % 2 == 0 : true
+        );
+    }
+
+    public isDead() {
+        return this.isAlive() === false;
+    }
+
+    public isTargetable() {
+        return Memory.readMemory(this.baseAddress + Offsets.ObjectTargetable, memoryjs.BOOLEAN);
+    }
+
+    public isVisible() {
+        return Memory.readMemory(this.baseAddress + Offsets.ObjectVisibility, memoryjs.BOOLEAN);
     }
 
     public getType() {

@@ -16,6 +16,10 @@ class SDKPluginLoader {
         renderer: GameRenderer,
     ) {
         const files = fs.readdirSync(PLUGINS_FOLDER).filter((fileName) => fileName.endsWith('.js'));
+
+        const { SpellSlot } = require("../objects/Spell");
+        const { UnitType } = require("../ObjectManager");
+        const { UnitTag } = require("../ddragon/DDragonUnit");
         
         for (const file of files) {
             const fileContent = fs.readFileSync(
